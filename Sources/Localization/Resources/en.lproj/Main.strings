@@ -1,5 +1,5 @@
 "app.title" = "Windows Connection Order";
-"app.subtitle" = "Demo UI — no Windows network settings are read or changed.";
+"app.subtitle" = "Windows network adapters are read. Changing network settings is not available yet.";
 "language.label" = "Language:";
 "language.english" = "English";
 "language.russian" = "Russian";

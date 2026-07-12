@@ -1,5 +1,5 @@
 "app.title" = "Windows Connection Order";
-"app.subtitle" = "Demo kasutajaliides — Windowsi võrgusätteid ei loeta ega muudeta.";
+"app.subtitle" = "Windowsi võrguadaptereid loetakse. Võrgusätete muutmine pole veel saadaval.";
 "language.label" = "Keel:";
 "language.english" = "Inglise";
 "language.russian" = "Vene";

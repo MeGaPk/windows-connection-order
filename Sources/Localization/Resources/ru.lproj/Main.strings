@@ -1,5 +1,5 @@
 "app.title" = "Windows Connection Order";
-"app.subtitle" = "Демо-интерфейс — настройки сети Windows не читаются и не изменяются.";
+"app.subtitle" = "Сетевые адаптеры Windows читаются. Изменение настроек сети пока недоступно.";
 "language.label" = "Язык:";
 "language.english" = "Английский";
 "language.russian" = "Русский";

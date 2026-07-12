@@ -60,38 +60,78 @@ public struct MainScreen: View {
     }
 
     private var adaptersTable: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            tableHeader
-
-            ScrollView {
-                adapterRows
+        ScrollableTable {
+            HStack(alignment: .top, spacing: 0) {
+                orderColumn
+                adapterColumn
+                ipv4Column
+                ipv6Column
+                metricColumn
             }
-            .frame(minHeight: 240, maxHeight: .infinity, alignment: .topLeading)
         }
+        .frame(minHeight: 240, maxHeight: .infinity, alignment: .topLeading)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(UIColors.tableBackground)
     }
 
-    private var adapterRows: some View {
-        VStack(alignment: .leading, spacing: 0) {
+    private var orderColumn: some View {
+        ScrollableTableColumn {
+            tableHeaderCell(localizables.main.columnOrder, alignment: .trailing)
+        } cells: {
             ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
-                adapterRow(item.element, priority: item.offset + 1)
+                adapterCell(for: item.element, priority: item.offset + 1) {
+                    tableTextCell("\(item.offset + 1)", alignment: .trailing)
+                }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var tableHeader: some View {
-        HStack(spacing: 0) {
-            tableCell(localizables.main.columnOrder, minWidth: 55, alignment: .trailing, emphasized: true)
-            tableCell(localizables.main.columnAdapter, minWidth: 180, emphasized: true)
-            tableCell(localizables.main.columnIPv4, minWidth: 170, emphasized: true)
-            tableCell(localizables.main.columnIPv6, minWidth: 230, emphasized: true)
-            tableCell(localizables.main.columnMetric, minWidth: 150, emphasized: true)
+    private var adapterColumn: some View {
+        ScrollableTableColumn {
+            tableHeaderCell(localizables.main.columnAdapter)
+        } cells: {
+            ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
+                adapterCell(for: item.element, priority: item.offset + 1) {
+                    tableTextCell(item.element.name)
+                }
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 38, alignment: .leading)
-        .background(UIColors.tableHeaderBackground)
+    }
+
+    private var ipv4Column: some View {
+        ScrollableTableColumn {
+            tableHeaderCell(localizables.main.columnIPv4)
+        } cells: {
+            ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
+                adapterCell(for: item.element, priority: item.offset + 1) {
+                    tableTextCell(item.element.ipv4.address?.description ?? "—")
+                }
+            }
+        }
+    }
+
+    private var ipv6Column: some View {
+        ScrollableTableColumn {
+            tableHeaderCell(localizables.main.columnIPv6)
+        } cells: {
+            ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
+                adapterCell(for: item.element, priority: item.offset + 1) {
+                    tableTextCell(item.element.ipv6.address?.description ?? "—")
+                }
+            }
+        }
+    }
+
+    private var metricColumn: some View {
+        ScrollableTableColumn {
+            tableHeaderCell(localizables.main.columnMetric)
+        } cells: {
+            ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
+                adapterCell(for: item.element, priority: item.offset + 1) {
+                    metricCell(for: item.element)
+                }
+            }
+        }
     }
 
     private var adapterActions: some View {
@@ -133,49 +173,50 @@ public struct MainScreen: View {
         }
     }
 
-    private func adapterRow(_ adapter: NetworkAdapter, priority: Int) -> some View {
-        HStack(spacing: 0) {
-            tableCell("\(priority)", minWidth: 55, alignment: .trailing)
-            tableCell(adapter.name, minWidth: 180)
-            tableCell(adapter.ipv4.address.description, minWidth: 170)
-            tableCell(adapter.ipv6.address.description, minWidth: 230)
-
+    private func metricCell(for adapter: NetworkAdapter) -> some View {
+        Group {
             if adapter.id == viewModel.selectedAdapter?.id {
                 TextField(localizables.main.columnMetric, text: $viewModel.metricInput)
                     .onSubmit { viewModel.applyMetric() }
-                    .padding(6)
-                    .frame(minWidth: 150, maxWidth: .infinity, alignment: .leading)
-                    .frame(height: 40, alignment: .leading)
             }
             else {
-                tableCell("\(adapter.metric)", minWidth: 150)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 40, alignment: .leading)
-        .background(rowBackground(for: adapter, priority: priority))
-        .onTapGesture {
-            viewModel.selectAdapter(id: adapter.id)
-        }
-    }
-
-    private func tableCell(
-        _ value: String,
-        minWidth: Double,
-        alignment: Alignment = .leading,
-        emphasized: Bool = false
-    ) -> some View {
-        Group {
-            if emphasized {
-                Text(value).emphasized()
-            }
-            else {
-                Text(value)
+                Text("\(adapter.metric)")
             }
         }
         .padding(6)
-        .frame(minWidth: minWidth, maxWidth: .infinity, alignment: alignment)
-        .frame(height: 40, alignment: alignment)
+        .frame(height: 40, alignment: .leading)
+    }
+
+    private func tableHeaderCell(
+        _ value: String,
+        alignment: Alignment = .leading
+    ) -> some View {
+        Text(value)
+            .emphasized()
+            .padding(6)
+            .frame(height: 38, alignment: alignment)
+            .background(UIColors.tableHeaderBackground)
+    }
+
+    private func tableTextCell(
+        _ value: String,
+        alignment: Alignment = .leading
+    ) -> some View {
+        Text(value)
+            .padding(6)
+            .frame(height: 40, alignment: alignment)
+    }
+
+    private func adapterCell<Content: View>(
+        for adapter: NetworkAdapter,
+        priority: Int,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        content()
+            .background(rowBackground(for: adapter, priority: priority))
+            .onTapGesture {
+                viewModel.selectAdapter(id: adapter.id)
+            }
     }
 
     private func rowBackground(for adapter: NetworkAdapter, priority: Int) -> Color {
