@@ -15,7 +15,13 @@
 "action.selected" = "Selected";
 "action.moveUp" = "Move selected up";
 "action.moveDown" = "Move selected down";
-"action.toggleTheme" = "Toggle light / dark";
+"action.settings" = "Settings";
+"action.back" = "Back";
+"settings.title" = "Settings";
+"settings.themeLabel" = "Appearance:";
+"colorScheme.automatic" = "Auto";
+"colorScheme.light" = "Light";
+"colorScheme.dark" = "Dark";
 "status.nothingSelected" = "Select an adapter to change its position.";
 "status.selected" = "%@ selected.";
 "status.metricChanged" = "Metric for %@ changed to %d.";

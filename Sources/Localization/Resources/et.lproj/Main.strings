@@ -15,7 +15,13 @@
 "action.selected" = "Valitud";
 "action.moveUp" = "Liiguta valitud üles";
 "action.moveDown" = "Liiguta valitud alla";
-"action.toggleTheme" = "Vaheta hele / tume";
+"action.settings" = "Seaded";
+"action.back" = "Tagasi";
+"settings.title" = "Seaded";
+"settings.themeLabel" = "Välimus:";
+"colorScheme.automatic" = "Automaatne";
+"colorScheme.light" = "Hele";
+"colorScheme.dark" = "Tume";
 "status.nothingSelected" = "Vali adapter, et muuta selle asukohta.";
 "status.selected" = "%@ on valitud.";
 "status.metricChanged" = "Adapteri %@ meetrika muudeti väärtuseks %d.";

@@ -1,12 +1,14 @@
+import SwiftCrossUI
 import UseCase
 
-public struct MainDependencies: Sendable {
+public struct MainDependencies {
     public let streamAdaptersUseCase: any StreamAdaptersUseCase
     public let refreshAdaptersUseCase: any RefreshAdaptersUseCase
     public let reorderAdaptersUseCase: any ReorderAdaptersUseCase
     public let updateAdapterMetricUseCase: any UpdateAdapterMetricUseCase
     public let streamLocalesUseCase: any StreamLocalesUseCase
-    public let setLocaleUseCase: any SetLocaleUseCase
+    public let streamColorSchemeUseCase: any StreamColorSchemeUseCase
+    public let navigationPath: Binding<NavigationPath>
 
     public init(
         streamAdaptersUseCase: some StreamAdaptersUseCase,
@@ -14,13 +16,15 @@ public struct MainDependencies: Sendable {
         reorderAdaptersUseCase: some ReorderAdaptersUseCase,
         updateAdapterMetricUseCase: some UpdateAdapterMetricUseCase,
         streamLocalesUseCase: some StreamLocalesUseCase,
-        setLocaleUseCase: some SetLocaleUseCase
+        streamColorSchemeUseCase: some StreamColorSchemeUseCase,
+        navigationPath: Binding<NavigationPath>
     ) {
         self.streamAdaptersUseCase = streamAdaptersUseCase
         self.refreshAdaptersUseCase = refreshAdaptersUseCase
         self.reorderAdaptersUseCase = reorderAdaptersUseCase
         self.updateAdapterMetricUseCase = updateAdapterMetricUseCase
         self.streamLocalesUseCase = streamLocalesUseCase
-        self.setLocaleUseCase = setLocaleUseCase
+        self.streamColorSchemeUseCase = streamColorSchemeUseCase
+        self.navigationPath = navigationPath
     }
 }

@@ -7,12 +7,26 @@ public struct MainScreen: View {
     @State private var viewModel: MainViewModel
     private let fallbackLocalizables: Localizables
 
-    public init(viewModel: MainViewModel, localizables: Localizables) {
+    public init(
+        viewModel: MainViewModel,
+        localizables: Localizables
+    ) {
         _viewModel = State(wrappedValue: viewModel)
         fallbackLocalizables = localizables
     }
 
     public var body: some View {
+        if let colorScheme {
+            content
+                .colorScheme(colorScheme)
+                .preferredColorScheme(colorScheme)
+        }
+        else {
+            content
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             screenHeader
             metricDescription
@@ -23,8 +37,6 @@ public struct MainScreen: View {
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(UIColors.pageBackground)
-        .colorScheme(viewModel.colorScheme)
-        .preferredColorScheme(viewModel.colorScheme)
     }
 
     private var screenHeader: some View {
@@ -36,17 +48,7 @@ public struct MainScreen: View {
 
             Spacer()
 
-            languageAndThemeControls
-        }
-    }
-
-    private var languageAndThemeControls: some View {
-        HStack(spacing: 6) {
-            Text(localizables.main.languageLabel)
-            Picker(of: languageOptions, selection: languageSelection)
-            Button(localizables.main.actionToggleTheme) {
-                viewModel.toggleColorScheme()
-            }
+            Button(localizables.main.actionSettings) { viewModel.showSettings() }
         }
     }
 
@@ -97,17 +99,20 @@ public struct MainScreen: View {
             Button(localizables.main.actionMoveUp) {
                 viewModel.moveSelectedAdapter(by: -1)
             }
-            .disabled(viewModel.selectedAdapterID == nil)
+            .disabled(viewModel.selectedAdapter == nil)
 
             Button(localizables.main.actionMoveDown) {
                 viewModel.moveSelectedAdapter(by: 1)
             }
-            .disabled(viewModel.selectedAdapterID == nil)
+            .disabled(viewModel.selectedAdapter == nil)
         }
     }
 
     private var selectionStatus: some View {
-        Text(localizedSelectionState)
+        Text(
+            viewModel.selectedAdapter.map { localizables.main.statusSelected($0.name) }
+                ?? localizables.main.statusNothingSelected
+        )
     }
 
     private var localizables: Localizables {
@@ -117,54 +122,14 @@ public struct MainScreen: View {
         return Localizables(locale: selectedLocale)
     }
 
-    private var availableLocales: [AppLocale] {
-        viewModel.localeSettings?.availableLocales ?? []
-    }
-
-    private var languageOptions: [String] {
-        availableLocales.map(localizedLanguageName)
-    }
-
-    private var languageSelection: Binding<String?> {
-        let options = languageOptions
-
-        return Binding(
-            get: {
-                guard let selectedLocale = viewModel.localeSettings?.selectedLocale,
-                      let index = availableLocales.firstIndex(of: selectedLocale)
-                else {
-                    return nil
-                }
-                return options[index]
-            },
-            set: { selectedOption in
-                guard let selectedOption,
-                      let index = options.firstIndex(of: selectedOption)
-                else {
-                    return
-                }
-                viewModel.selectLocale(availableLocales[index])
-            }
-        )
-    }
-
-    private var localizedSelectionState: String {
-        switch viewModel.adapterSelectionState {
-            case .selectionRequired:
-                localizables.main.statusNothingSelected
-            case let .selected(name):
-                localizables.main.statusSelected(name)
-        }
-    }
-
-    private func localizedLanguageName(for locale: AppLocale) -> String {
-        switch locale {
-            case .english:
-                localizables.main.languageEnglish
-            case .russian:
-                localizables.main.languageRussian
-            case .estonian:
-                localizables.main.languageEstonian
+    private var colorScheme: ColorScheme? {
+        switch viewModel.appColorScheme {
+            case .automatic:
+                nil
+            case .light:
+                .light
+            case .dark:
+                .dark
         }
     }
 
@@ -175,7 +140,7 @@ public struct MainScreen: View {
             tableCell(adapter.ipv4.address.description, minWidth: 170)
             tableCell(adapter.ipv6.address.description, minWidth: 230)
 
-            if adapter.id == viewModel.selectedAdapterID {
+            if adapter.id == viewModel.selectedAdapter?.id {
                 TextField(localizables.main.columnMetric, text: $viewModel.metricInput)
                     .onSubmit { viewModel.applyMetric() }
                     .padding(6)
@@ -214,7 +179,7 @@ public struct MainScreen: View {
     }
 
     private func rowBackground(for adapter: NetworkAdapter, priority: Int) -> Color {
-        if adapter.id == viewModel.selectedAdapterID {
+        if adapter.id == viewModel.selectedAdapter?.id {
             return UIColors.selectedRowBackground
         }
 

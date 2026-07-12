@@ -15,7 +15,13 @@
 "action.selected" = "Выбрано";
 "action.moveUp" = "Поднять выбранный";
 "action.moveDown" = "Опустить выбранный";
-"action.toggleTheme" = "Светлая / тёмная тема";
+"action.settings" = "Настройки";
+"action.back" = "Назад";
+"settings.title" = "Настройки";
+"settings.themeLabel" = "Оформление:";
+"colorScheme.automatic" = "Авто";
+"colorScheme.light" = "Светлая";
+"colorScheme.dark" = "Тёмная";
 "status.nothingSelected" = "Выберите адаптер, чтобы изменить его позицию.";
 "status.selected" = "Выбран адаптер %@.";
 "status.metricChanged" = "Метрика %@ изменена на %d.";

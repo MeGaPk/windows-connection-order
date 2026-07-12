@@ -1,16 +1,21 @@
+import Foundation
 import Localization
 import Repository
 import Utils
 
 public actor LocalizationRepositoryImpl: LocalizationRepository {
+    private static let selectedLocaleDefaultsKey = "selectedLocale"
     private let settings: AsyncCurrentValue<LocaleSettings>
 
     public init(
         availableLocales: [AppLocale] = AppLocale.allCases,
         selectedLocale: AppLocale = .systemDefault
     ) {
-        let initialLocale = availableLocales.contains(selectedLocale)
-            ? selectedLocale
+        let storedLocale = UserDefaults.standard.string(forKey: Self.selectedLocaleDefaultsKey)
+            .flatMap(AppLocale.init(rawValue:))
+        let requestedLocale = storedLocale ?? selectedLocale
+        let initialLocale = availableLocales.contains(requestedLocale)
+            ? requestedLocale
             : availableLocales.first ?? .english
         settings = AsyncCurrentValue(
             LocaleSettings(
@@ -36,5 +41,6 @@ public actor LocalizationRepositoryImpl: LocalizationRepository {
                 selectedLocale: locale
             )
         )
+        UserDefaults.standard.set(locale.rawValue, forKey: Self.selectedLocaleDefaultsKey)
     }
 }

@@ -2,82 +2,66 @@ import Domain
 import Localization
 import SwiftCrossUI
 
-public enum AdapterSelectionState: Sendable, Equatable {
-    case selectionRequired
-    case selected(name: String)
-}
-
 @MainActor
 @ObservableObject
 public final class MainViewModel {
     private let dependencies: MainDependencies
     private var adaptersStreamTask: Task<Void, Never>?
     private var localesStreamTask: Task<Void, Never>?
+    private var colorSchemeStreamTask: Task<Void, Never>?
 
-    public var colorScheme: ColorScheme = .light
     public var adapters: [NetworkAdapter] = []
-    public var localeSettings: LocaleSettings?
-    public var selectedAdapterID: NetworkAdapter.ID?
+    public var selectedAdapter: NetworkAdapter?
     public var metricInput = ""
-    public var adapterSelectionState: AdapterSelectionState = .selectionRequired
+    public var localeSettings: LocaleSettings?
+    public var appColorScheme: AppColorScheme = .automatic
 
     public init(dependencies: MainDependencies) {
         self.dependencies = dependencies
+        startAdaptersStream()
+        startLocalesStream()
+        startColorSchemeStream()
+        refreshAdapters()
     }
 
     deinit {
         adaptersStreamTask?.cancel()
         localesStreamTask?.cancel()
+        colorSchemeStreamTask?.cancel()
     }
 
-    public func start() {
-        startAdaptersStream()
-        startLocalesStream()
-        refreshAdapters()
+    public func showSettings() {
+        dependencies.navigationPath.wrappedValue.append(AppNavigationDestination.settings)
     }
 
-    public func toggleColorScheme() {
-        switch colorScheme {
-            case .light:
-                colorScheme = .dark
-            case .dark:
-                colorScheme = .light
-        }
-    }
-
-    public func selectLocale(_ locale: AppLocale) {
-        let setLocaleUseCase = dependencies.setLocaleUseCase
-        Task {
-            await setLocaleUseCase.execute(locale: locale)
-        }
+    public func goBack() {
+        dependencies.navigationPath.wrappedValue.removeLast()
     }
 
     public func selectAdapter(id: NetworkAdapter.ID) {
-        selectedAdapterID = id
         guard let adapter = adapters.first(where: { $0.id == id }) else {
             return
         }
+        selectedAdapter = adapter
         metricInput = String(adapter.metric)
-        adapterSelectionState = .selected(name: adapter.name)
     }
 
     public func moveSelectedAdapter(by offset: Int) {
-        guard let selectedAdapterID else {
-            adapterSelectionState = .selectionRequired
+        guard let selectedAdapter else {
             return
         }
 
         let reorderAdaptersUseCase = dependencies.reorderAdaptersUseCase
         Task {
             _ = await reorderAdaptersUseCase.execute(
-                selectedAdapterID: selectedAdapterID,
+                selectedAdapterID: selectedAdapter.id,
                 offset: offset
             )
         }
     }
 
     public func applyMetric() {
-        guard let selectedAdapterID,
+        guard let selectedAdapter,
               let metric = Int(metricInput),
               metric >= 0
         else {
@@ -87,7 +71,7 @@ public final class MainViewModel {
         let updateAdapterMetricUseCase = dependencies.updateAdapterMetricUseCase
         Task {
             _ = await updateAdapterMetricUseCase.execute(
-                adapterID: selectedAdapterID,
+                adapterID: selectedAdapter.id,
                 metric: metric
             )
         }
@@ -108,15 +92,21 @@ public final class MainViewModel {
                 }
 
                 self?.adapters = adapters
+                if let selectedAdapterID = self?.selectedAdapter?.id {
+                    self?.selectedAdapter = adapters.first { $0.id == selectedAdapterID }
+                }
             }
         }
     }
 
-    private func startLocalesStream() {
-        guard localesStreamTask == nil else {
-            return
+    private func refreshAdapters() {
+        let refreshAdaptersUseCase = dependencies.refreshAdaptersUseCase
+        Task {
+            await refreshAdaptersUseCase.execute()
         }
+    }
 
+    private func startLocalesStream() {
         let streamLocalesUseCase = dependencies.streamLocalesUseCase
         localesStreamTask = Task { [weak self] in
             let localesStream = await streamLocalesUseCase.execute()
@@ -131,10 +121,18 @@ public final class MainViewModel {
         }
     }
 
-    private func refreshAdapters() {
-        let refreshAdaptersUseCase = dependencies.refreshAdaptersUseCase
-        Task {
-            await refreshAdaptersUseCase.execute()
+    private func startColorSchemeStream() {
+        let streamColorSchemeUseCase = dependencies.streamColorSchemeUseCase
+        colorSchemeStreamTask = Task { [weak self] in
+            let colorSchemeStream = await streamColorSchemeUseCase.execute()
+
+            for await colorScheme in colorSchemeStream {
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                self?.appColorScheme = colorScheme
+            }
         }
     }
 }
