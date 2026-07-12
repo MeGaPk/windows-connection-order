@@ -4,8 +4,8 @@
 "language.english" = "English";
 "language.russian" = "Russian";
 "language.estonian" = "Estonian";
-"priority.title" = "Connection priority";
-"priority.help" = "Windows uses lower metrics first. This prototype only changes the demo list.";
+"metric.title" = "Connection metric";
+"metric.help" = "Windows uses lower metrics first. Press Enter after editing a metric to apply and sort the list.";
 "column.order" = "#";
 "column.adapter" = "Adapter";
 "column.ipv4" = "Local IPv4";

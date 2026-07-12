@@ -39,8 +39,8 @@ public struct MainNode<Dependencies: MainViewModelDependencies>: View {
                 }
             }
 
-            Text(viewModel.localizables.main.priorityTitle).emphasized()
-            Text(viewModel.localizables.main.priorityHelp)
+            Text(viewModel.localizables.main.metricTitle).emphasized()
+            Text(viewModel.localizables.main.metricHelp)
 
             VStack(alignment: .leading, spacing: 0) {
                 tableHeader
@@ -48,7 +48,7 @@ public struct MainNode<Dependencies: MainViewModelDependencies>: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(viewModel.adapters) { adapter in
-                            adapterRow(adapter)
+                            adapterRow(adapter, priority: displayPriority(for: adapter))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -106,38 +106,43 @@ public struct MainNode<Dependencies: MainViewModelDependencies>: View {
 
     private var tableHeader: some View {
         HStack(spacing: 0) {
-            tableCell(viewModel.localizables.main.columnOrder, minWidth: 55, alignment: .trailing, emphasized: true)
-            tableCell(viewModel.localizables.main.columnAdapter, minWidth: 160, emphasized: true)
-            tableCell(viewModel.localizables.main.columnIPv4, minWidth: 150, emphasized: true)
-            tableCell(viewModel.localizables.main.columnIPv6, minWidth: 210, emphasized: true)
-            tableCell(viewModel.localizables.main.columnMetric, minWidth: 130, emphasized: true)
+            tableCell(
+                viewModel.localizables.main.columnOrder,
+                minWidth: 55,
+                alignment: .trailing,
+                emphasized: true
+            )
+            tableCell(viewModel.localizables.main.columnAdapter, minWidth: 180, emphasized: true)
+            tableCell(viewModel.localizables.main.columnIPv4, minWidth: 170, emphasized: true)
+            tableCell(viewModel.localizables.main.columnIPv6, minWidth: 230, emphasized: true)
+            tableCell(viewModel.localizables.main.columnMetric, minWidth: 150, emphasized: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: 38, alignment: .leading)
         .background(headerBackground)
     }
 
-    private func adapterRow(_ adapter: NetworkAdapter) -> some View {
+    private func adapterRow(_ adapter: NetworkAdapter, priority: Int) -> some View {
         HStack(spacing: 0) {
-            tableCell("\(adapter.priority)", minWidth: 55, alignment: .trailing)
-            tableCell(adapter.name, minWidth: 160)
-            tableCell(adapter.ipv4.address.description, minWidth: 150)
-            tableCell(adapter.ipv6.address.description, minWidth: 210)
+            tableCell("\(priority)", minWidth: 55, alignment: .trailing)
+            tableCell(adapter.name, minWidth: 180)
+            tableCell(adapter.ipv4.address.description, minWidth: 170)
+            tableCell(adapter.ipv6.address.description, minWidth: 230)
 
             if adapter.id == viewModel.selectedAdapterID {
                 TextField(viewModel.localizables.main.columnMetric, text: $viewModel.metricInput)
                     .onSubmit { viewModel.applyMetric() }
                     .padding(6)
-                    .frame(minWidth: 130, maxWidth: .infinity, alignment: .leading)
+                    .frame(minWidth: 150, maxWidth: .infinity, alignment: .leading)
                     .frame(height: 40, alignment: .leading)
             }
             else {
-                tableCell("\(adapter.metric)", minWidth: 130)
+                tableCell("\(adapter.metric)", minWidth: 150)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: 40, alignment: .leading)
-        .background(rowBackground(for: adapter))
+        .background(rowBackground(for: adapter, priority: priority))
         .onTapGesture {
             viewModel.selectAdapter(id: adapter.id)
         }
@@ -162,12 +167,16 @@ public struct MainNode<Dependencies: MainViewModelDependencies>: View {
         .frame(height: 40, alignment: alignment)
     }
 
-    private func rowBackground(for adapter: NetworkAdapter) -> Color {
+    private func displayPriority(for adapter: NetworkAdapter) -> Int {
+        (viewModel.adapters.firstIndex { $0.id == adapter.id } ?? 0) + 1
+    }
+
+    private func rowBackground(for adapter: NetworkAdapter, priority: Int) -> Color {
         if adapter.id == viewModel.selectedAdapterID {
             return Color.adaptive(light: Color.blue.opacity(0.2), dark: Color.blue.opacity(0.38))
         }
 
-        if adapter.priority.isMultiple(of: 2) {
+        if priority.isMultiple(of: 2) {
             return Color.adaptive(light: Color(white: 0.94), dark: Color(white: 0.17))
         }
 

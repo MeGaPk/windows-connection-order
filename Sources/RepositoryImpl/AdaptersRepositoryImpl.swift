@@ -27,8 +27,9 @@ public actor AdaptersRepositoryImpl<Gateway: AdaptersGateway>: AdaptersRepositor
         guard reorderedAdapters.indices.contains(destinationIndex) else { return false }
 
         reorderedAdapters.swapAt(currentIndex, destinationIndex)
+        let sortedMetrics = reorderedAdapters.map(\.metric).sorted()
         for index in reorderedAdapters.indices {
-            reorderedAdapters[index].priority = index + 1
+            reorderedAdapters[index].metric = sortedMetrics[index]
         }
         await adapters.update(reorderedAdapters)
         return true
@@ -46,10 +47,6 @@ public actor AdaptersRepositoryImpl<Gateway: AdaptersGateway>: AdaptersRepositor
 
         updatedAdapters[index].metric = metric
         updatedAdapters.sort { $0.metric < $1.metric }
-
-        for index in updatedAdapters.indices {
-            updatedAdapters[index].priority = index + 1
-        }
 
         await adapters.update(updatedAdapters)
         return true

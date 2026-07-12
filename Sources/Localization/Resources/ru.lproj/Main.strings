@@ -4,8 +4,8 @@
 "language.english" = "Английский";
 "language.russian" = "Русский";
 "language.estonian" = "Эстонский";
-"priority.title" = "Приоритет подключения";
-"priority.help" = "Windows предпочитает меньшую метрику. В прототипе меняется только демонстрационный список.";
+"metric.title" = "Метрика подключения";
+"metric.help" = "Windows предпочитает меньшую метрику. После изменения нажмите Enter, чтобы применить и отсортировать список.";
 "column.order" = "№";
 "column.adapter" = "Адаптер";
 "column.ipv4" = "Локальный IPv4";

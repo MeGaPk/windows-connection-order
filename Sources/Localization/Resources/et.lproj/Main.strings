@@ -4,8 +4,8 @@
 "language.english" = "Inglise";
 "language.russian" = "Vene";
 "language.estonian" = "Eesti";
-"priority.title" = "Ühenduse prioriteet";
-"priority.help" = "Windows eelistab väiksemat meetrikat. Prototüüp muudab ainult demoloendit.";
+"metric.title" = "Ühenduse meetrika";
+"metric.help" = "Windows eelistab väiksemat meetrikat. Muudatuse rakendamiseks ja loendi sortimiseks vajuta Enter.";
 "column.order" = "#";
 "column.adapter" = "Adapter";
 "column.ipv4" = "Kohalik IPv4";
