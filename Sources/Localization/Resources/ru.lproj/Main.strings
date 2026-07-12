@@ -17,6 +17,7 @@
 "action.moveDown" = "Опустить выбранный";
 "action.settings" = "Настройки";
 "action.back" = "Назад";
+"action.dismiss" = "Закрыть";
 "settings.title" = "Настройки";
 "settings.themeLabel" = "Оформление:";
 "colorScheme.automatic" = "Авто";
@@ -26,3 +27,8 @@
 "status.selected" = "Выбран адаптер %@.";
 "status.metricChanged" = "Метрика %@ изменена на %d.";
 "adapter.metrics" = "IPv4: %d, IPv6: %d";
+"error.permissionDenied" = "Для изменения настроек адаптера требуются права администратора.";
+"error.adapterNotFound" = "Выбранный адаптер больше недоступен.";
+"error.invalidMetricValue" = "Недопустимое значение метрики. Введите неотрицательное целое число.";
+"error.systemError" = "Системная ошибка (код %d): %@";
+"error.unknown" = "Произошла неизвестная ошибка.";

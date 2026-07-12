@@ -9,7 +9,7 @@ public struct UpdateAdapterMetricUseCaseImpl: UpdateAdapterMetricUseCase {
         self.repository = repository
     }
 
-    public func execute(adapterID: NetworkAdapter.ID, metric: Int) async -> Bool {
-        await repository.updateAdapterMetric(adapterID: adapterID, metric: metric)
+    public func execute(adapterID: NetworkAdapter.ID, metric: Int) async throws(NetworkAdapterError) {
+        try await repository.updateAdapterMetric(adapterID: adapterID, metric: metric)
     }
 }

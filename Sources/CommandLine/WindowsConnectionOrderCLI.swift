@@ -36,7 +36,7 @@ struct ListAdaptersCommand: AsyncParsableCommand {
     mutating func run() async throws {
         let useCases = AppComposition.makeSystemAdaptersUseCases()
 
-        await useCases.refresh.execute()
+        try await useCases.refresh.execute()
         let stream = await useCases.stream.execute()
         var iterator = stream.makeAsyncIterator()
 

@@ -66,7 +66,7 @@ The release files are written to `release_build/`, which is intentionally exclud
 
 | Command | Description |
 | --- | --- |
-| `.\scripts\Setup-Swift.ps1` | Installs the pinned Swift toolchain through winget, Visual Studio C++ build tools, and the Windows SDK; configures `PATH` and `SDKROOT`. |
+| `.\scripts\Setup-Swift.ps1` | Downloads the signed official Swift installer for the pinned toolchain, verifies its signature, installs it, and configures `PATH` and `SDKROOT`. |
 | `.\scripts\Setup-WindowsAppRuntime.ps1` | Downloads and silently installs Windows App Runtime 1.5-preview1 x64 for the current GUI backend. |
 | `.\scripts\Generate-Localizables.ps1` | Reads all `Resources/*.lproj/*.strings` files, validates keys and format arguments, and generates typed localization accessors. |
 | `.\scripts\Build-Debug.ps1` | Generates localization accessors and builds the debug executable. |

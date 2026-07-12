@@ -15,6 +15,8 @@ public final class MainViewModel {
     public var localeSettings: LocaleSettings?
     public var appColorScheme: AppColorScheme = .automatic
 
+    public var adapterError: NetworkAdapterError?
+
     public init(dependencies: MainDependencies) {
         self.dependencies = dependencies
         startAdaptersStream()
@@ -43,6 +45,7 @@ public final class MainViewModel {
         }
         selectedAdapter = adapter
         metricInput = String(adapter.metric)
+        adapterError = nil
     }
 
     public func moveSelectedAdapter(by offset: Int) {
@@ -51,29 +54,46 @@ public final class MainViewModel {
         }
 
         let reorderAdaptersUseCase = dependencies.reorderAdaptersUseCase
-        Task {
-            _ = await reorderAdaptersUseCase.execute(
-                selectedAdapterID: selectedAdapter.id,
-                offset: offset
-            )
+        let adapterID = selectedAdapter.id
+        Task { [weak self] in
+            do {
+                _ = try await reorderAdaptersUseCase.execute(
+                    selectedAdapterID: adapterID,
+                    offset: offset
+                )
+                self?.adapterError = nil
+            } catch {
+                self?.adapterError = Self.networkAdapterError(from: error)
+            }
         }
     }
 
     public func applyMetric() {
-        guard let selectedAdapter,
-              let metric = Int(metricInput),
-              metric >= 0
-        else {
+        guard let selectedAdapter else {
+            return
+        }
+        guard let metric = Int(metricInput), metric >= 0 else {
+            adapterError = .invalidMetricValue(value: -1)
             return
         }
 
         let updateAdapterMetricUseCase = dependencies.updateAdapterMetricUseCase
-        Task {
-            _ = await updateAdapterMetricUseCase.execute(
-                adapterID: selectedAdapter.id,
-                metric: metric
-            )
+        let adapterID = selectedAdapter.id
+        Task { [weak self] in
+            do {
+                try await updateAdapterMetricUseCase.execute(
+                    adapterID: adapterID,
+                    metric: metric
+                )
+                self?.adapterError = nil
+            } catch {
+                self?.adapterError = Self.networkAdapterError(from: error)
+            }
         }
+    }
+
+    public func clearError() {
+        adapterError = nil
     }
 
     private func startAdaptersStream() {
@@ -100,9 +120,17 @@ public final class MainViewModel {
 
     private func refreshAdapters() {
         let refreshAdaptersUseCase = dependencies.refreshAdaptersUseCase
-        Task {
-            await refreshAdaptersUseCase.execute()
+        Task { [weak self] in
+            do {
+                try await refreshAdaptersUseCase.execute()
+            } catch {
+                self?.adapterError = Self.networkAdapterError(from: error)
+            }
         }
+    }
+
+    private static func networkAdapterError(from error: any Error) -> NetworkAdapterError {
+        error as? NetworkAdapterError ?? .unknown
     }
 
     private func startLocalesStream() {

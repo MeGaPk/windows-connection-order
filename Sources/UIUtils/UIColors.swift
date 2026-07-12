@@ -25,4 +25,14 @@ public enum UIColors {
         light: Color(white: 0.94),
         dark: Color(white: 0.17)
     )
+
+    public static let errorBackground = Color.adaptive(
+        light: Color(red: 1.0, green: 0.9, blue: 0.9),
+        dark: Color(red: 0.4, green: 0.15, blue: 0.15)
+    )
+
+    public static let errorForeground = Color.adaptive(
+        light: Color(red: 0.6, green: 0.0, blue: 0.0),
+        dark: Color(red: 1.0, green: 0.7, blue: 0.7)
+    )
 }

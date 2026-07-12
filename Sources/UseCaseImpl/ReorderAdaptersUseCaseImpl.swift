@@ -7,7 +7,7 @@ public struct ReorderAdaptersUseCaseImpl: ReorderAdaptersUseCase {
 
     public init(repository: any AdaptersRepository) { self.repository = repository }
 
-    public func execute(selectedAdapterID: NetworkAdapter.ID, offset: Int) async -> Bool {
-        await repository.reorderAdapters(selectedAdapterID: selectedAdapterID, offset: offset)
+    public func execute(selectedAdapterID: NetworkAdapter.ID, offset: Int) async throws(NetworkAdapterError) -> Bool {
+        try await repository.reorderAdapters(selectedAdapterID: selectedAdapterID, offset: offset)
     }
 }

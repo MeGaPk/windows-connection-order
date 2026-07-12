@@ -5,26 +5,28 @@ import WinSDK
 public struct WindowsAdaptersGatewayImpl: AdaptersGateway {
     public init() {}
 
-    public func fetchAdapters() async -> [NetworkAdapter] {
+    public func fetchAdapters() async throws(NetworkAdapterError) -> [NetworkAdapter] {
         var winsockData = WSADATA()
-        guard WSAStartup(WORD(0x0202), &winsockData) == 0 else {
-            return []
+        let wsaStartupResult = WSAStartup(WORD(0x0202), &winsockData)
+        guard wsaStartupResult == 0 else {
+            throw mapWindowsError(
+                code: wsaStartupResult,
+                message: "WSAStartup failed"
+            )
         }
         defer { WSACleanup() }
 
-        guard var buffer = adaptersBuffer() else {
-            return []
-        }
+        var buffer = try adaptersBuffer()
 
-        return buffer.withUnsafeMutableBytes { bytes in
-            var adapters: [NetworkAdapter] = []
+        let adapters: [NetworkAdapter] = buffer.withUnsafeMutableBytes { bytes in
+            var collected: [NetworkAdapter] = []
             var pointer = bytes.baseAddress?.assumingMemoryBound(to: IP_ADAPTER_ADDRESSES.self)
 
             while let current = pointer {
                 let adapter = current.pointee
                 if let name = adapter.FriendlyName.map({ String(decodingCString: $0, as: UTF16.self) }) {
                     let addresses = addresses(from: adapter.FirstUnicastAddress)
-                    adapters.append(
+                    collected.append(
                         NetworkAdapter(
                             id: .init(luid: adapter.Luid.Value),
                             metric: Int(adapter.Ipv4Metric),
@@ -37,11 +39,13 @@ public struct WindowsAdaptersGatewayImpl: AdaptersGateway {
                 pointer = adapter.Next
             }
 
-            return adapters
+            return collected
         }
+
+        return adapters
     }
 
-    private func adaptersBuffer() -> [UInt8]? {
+    private func adaptersBuffer() throws(NetworkAdapterError) -> [UInt8] {
         var size: ULONG = 15_000
 
         for _ in 0 ..< 3 {
@@ -60,12 +64,33 @@ public struct WindowsAdaptersGatewayImpl: AdaptersGateway {
                 return buffer
             }
 
+            // ERROR_BUFFER_OVERFLOW means `size` was updated with the required size;
+            // retry with the new size. Any other status is a hard failure.
             guard status == ERROR_BUFFER_OVERFLOW else {
-                return nil
+                throw mapWindowsError(
+                    code: Int32(bitPattern: status),
+                    message: "GetAdaptersAddresses failed"
+                )
             }
         }
 
-        return nil
+        // 3 attempts in a row kept overflowing - give up.
+        throw mapWindowsError(
+            code: ERROR_BUFFER_OVERFLOW,
+            message: "GetAdaptersAddresses kept reporting buffer overflow"
+        )
+    }
+
+    private func mapWindowsError(
+        code: Int32,
+        message: String
+    ) -> NetworkAdapterError {
+        switch code {
+            case Int32(ERROR_ACCESS_DENIED):
+                .permissionDenied
+            default:
+                .systemError(code: code, message: message)
+        }
     }
 
     private func addresses(

@@ -33,6 +33,7 @@ public struct MainScreen: View {
             AdaptersTable(viewModel: viewModel, localizables: localizables)
             adapterActions
             selectionStatus
+            errorStatus
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -80,6 +81,23 @@ public struct MainScreen: View {
         )
     }
 
+    @ViewBuilder
+    private var errorStatus: some View {
+        if let adapterError = viewModel.adapterError {
+            HStack(alignment: .top, spacing: 8) {
+                Text(localizedMessage(for: adapterError))
+                    .foregroundColor(UIColors.errorForeground)
+                Spacer()
+                Button(localizables.main.actionDismiss) {
+                    viewModel.clearError()
+                }
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(UIColors.errorBackground)
+        }
+    }
+
     private var localizables: Localizables {
         guard let selectedLocale = viewModel.localeSettings?.selectedLocale else {
             return fallbackLocalizables
@@ -95,6 +113,21 @@ public struct MainScreen: View {
                 .light
             case .dark:
                 .dark
+        }
+    }
+
+    private func localizedMessage(for error: NetworkAdapterError) -> String {
+        switch error {
+            case .permissionDenied:
+                localizables.main.errorPermissionDenied
+            case .adapterNotFound:
+                localizables.main.errorAdapterNotFound
+            case .invalidMetricValue:
+                localizables.main.errorInvalidMetricValue
+            case .systemError(let code, let message):
+                localizables.main.errorSystemError(Int(code), message)
+            case .unknown:
+                localizables.main.errorUnknown
         }
     }
 }

@@ -15,16 +15,23 @@ public actor AdaptersRepositoryImpl: AdaptersRepository {
         await adapters.stream()
     }
 
-    public func refreshAdapters() async {
-        let fetchedAdapters = await gateway.fetchAdapters()
+    public func refreshAdapters() async throws(NetworkAdapterError) {
+        let fetchedAdapters = try await gateway.fetchAdapters()
         await adapters.update(fetchedAdapters)
     }
 
-    public func reorderAdapters(selectedAdapterID: NetworkAdapter.ID, offset: Int) async -> Bool {
+    public func reorderAdapters(
+        selectedAdapterID: NetworkAdapter.ID,
+        offset: Int
+    ) async throws(NetworkAdapterError) -> Bool {
         var reorderedAdapters = await adapters.current()
-        guard let currentIndex = reorderedAdapters.firstIndex(where: { $0.id == selectedAdapterID }) else { return false }
+        guard let currentIndex = reorderedAdapters.firstIndex(where: { $0.id == selectedAdapterID }) else {
+            throw NetworkAdapterError.adapterNotFound
+        }
         let destinationIndex = currentIndex + offset
-        guard reorderedAdapters.indices.contains(destinationIndex) else { return false }
+        guard reorderedAdapters.indices.contains(destinationIndex) else {
+            return false
+        }
 
         reorderedAdapters.swapAt(currentIndex, destinationIndex)
         let sortedMetrics = reorderedAdapters.map(\.metric).sorted()
@@ -35,20 +42,22 @@ public actor AdaptersRepositoryImpl: AdaptersRepository {
         return true
     }
 
-    public func updateAdapterMetric(adapterID: NetworkAdapter.ID, metric: Int) async -> Bool {
+    public func updateAdapterMetric(
+        adapterID: NetworkAdapter.ID,
+        metric: Int
+    ) async throws(NetworkAdapterError) {
         guard metric >= 0 else {
-            return false
+            throw NetworkAdapterError.invalidMetricValue(value: metric)
         }
 
         var updatedAdapters = await adapters.current()
         guard let index = updatedAdapters.firstIndex(where: { $0.id == adapterID }) else {
-            return false
+            throw NetworkAdapterError.adapterNotFound
         }
 
         updatedAdapters[index].metric = metric
         updatedAdapters.sort { $0.metric < $1.metric }
 
         await adapters.update(updatedAdapters)
-        return true
     }
 }

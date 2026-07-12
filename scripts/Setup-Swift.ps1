@@ -81,17 +81,32 @@ function Wait-ForSwiftExecutable {
     return $null
 }
 
+function Install-SwiftFromOfficialInstaller {
+    $installerName = "swift-$RequiredSwiftVersion-RELEASE-windows10.exe"
+    $installerPath = Join-Path $env:TEMP $installerName
+    $installerURL = "https://download.swift.org/swift-$RequiredSwiftVersion-release/windows10/swift-$RequiredSwiftVersion-RELEASE/$installerName"
+
+    try {
+        Write-Host "Downloading official Swift $RequiredSwiftVersion installer..."
+        Invoke-WebRequest -Uri $installerURL -OutFile $installerPath
+
+        $signature = Get-AuthenticodeSignature -FilePath $installerPath
+        if ($signature.Status -ne 'Valid') {
+            throw "Swift installer signature is invalid: $($signature.StatusMessage)"
+        }
+
+        Write-Host "Installing Swift $RequiredSwiftVersion..."
+        $installer = Start-Process -FilePath $installerPath -ArgumentList '/quiet', '/norestart' -PassThru -Wait -WindowStyle Hidden
+        if ($installer.ExitCode -ne 0) {
+            throw "Swift installer failed with exit code $($installer.ExitCode)."
+        }
+    }
+    finally {
+        Remove-Item -LiteralPath $installerPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Test-SwiftPrerequisites {
-    $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
-    if ($null -eq $winget) {
-        throw 'winget is required. Install or update Microsoft App Installer, then run this script again.'
-    }
-
-    & $winget.Source show --id Swift.Toolchain --exact --version $RequiredSwiftVersion --source winget --accept-source-agreements --disable-interactivity | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        throw "winget does not provide Swift.Toolchain version $RequiredSwiftVersion from the winget source."
-    }
-
     $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
     $sdkRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\Include'
     if (-not (Test-Path -LiteralPath $vswhere)) {
@@ -103,10 +118,9 @@ function Test-SwiftPrerequisites {
         throw 'Swift requires the Visual Studio C++ x64/x86 tools and a Windows SDK.'
     }
 
-    return $winget
 }
 
-$winget = Test-SwiftPrerequisites
+Test-SwiftPrerequisites
 $swift = Get-InstalledSwiftExecutable
 if ($null -ne $swift) {
     Add-SwiftDirectoriesToUserPath -SwiftExecutable $swift
@@ -121,21 +135,17 @@ if ($null -ne $swift) {
     }
 }
 
-Write-Host "Installing Swift $RequiredSwiftVersion through winget..."
-& $winget.Source install --id Swift.Toolchain --exact --version $RequiredSwiftVersion --source winget --accept-package-agreements --accept-source-agreements --disable-interactivity
-if ($LASTEXITCODE -ne 0) {
-    throw "winget failed to install Swift $RequiredSwiftVersion (exit code $LASTEXITCODE)."
-}
+Install-SwiftFromOfficialInstaller
 
 $swift = Wait-ForSwiftExecutable
 if ($null -eq $swift) {
-    throw 'winget finished, but swift.exe did not appear in the expected Swift toolchain location within three minutes.'
+    throw 'The installer finished, but swift.exe did not appear in the expected Swift toolchain location within three minutes.'
 }
 
 Add-SwiftDirectoriesToUserPath -SwiftExecutable $swift
 $versionOutput = Get-SwiftVersion -SwiftExecutable $swift
 if ($versionOutput -notmatch [regex]::Escape($RequiredSwiftVersion)) {
-    throw "winget installed an unexpected Swift version:`n$versionOutput"
+    throw "The installer installed an unexpected Swift version:`n$versionOutput"
 }
 
 & $swift package --version | Out-Host

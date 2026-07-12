@@ -1,3 +1,5 @@
+import Domain
+
 public protocol RefreshAdaptersUseCase: Sendable {
-    func execute() async
+    func execute() async throws(NetworkAdapterError)
 }

@@ -17,6 +17,7 @@
 "action.moveDown" = "Move selected down";
 "action.settings" = "Settings";
 "action.back" = "Back";
+"action.dismiss" = "Dismiss";
 "settings.title" = "Settings";
 "settings.themeLabel" = "Appearance:";
 "colorScheme.automatic" = "Auto";
@@ -26,3 +27,8 @@
 "status.selected" = "%@ selected.";
 "status.metricChanged" = "Metric for %@ changed to %d.";
 "adapter.metrics" = "IPv4: %d, IPv6: %d";
+"error.permissionDenied" = "Administrator privileges are required to change adapter settings.";
+"error.adapterNotFound" = "The selected adapter is no longer available.";
+"error.invalidMetricValue" = "Invalid metric value. Please enter a non-negative integer.";
+"error.systemError" = "System error (code %d): %@";
+"error.unknown" = "An unknown error occurred.";

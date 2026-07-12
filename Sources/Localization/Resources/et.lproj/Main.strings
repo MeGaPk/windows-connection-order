@@ -4,7 +4,7 @@
 "language.english" = "Inglise";
 "language.russian" = "Vene";
 "language.estonian" = "Eesti";
-"metric.title" = "Ühenduse meetrika";
+"metric.title" = "ühenduse meetrika";
 "metric.help" = "Windows eelistab väiksemat meetrikat. Muudatuse rakendamiseks ja loendi sortimiseks vajuta Enter.";
 "column.order" = "#";
 "column.adapter" = "Adapter";
@@ -17,6 +17,7 @@
 "action.moveDown" = "Liiguta valitud alla";
 "action.settings" = "Seaded";
 "action.back" = "Tagasi";
+"action.dismiss" = "Sulge";
 "settings.title" = "Seaded";
 "settings.themeLabel" = "Välimus:";
 "colorScheme.automatic" = "Automaatne";
@@ -26,3 +27,8 @@
 "status.selected" = "%@ on valitud.";
 "status.metricChanged" = "Adapteri %@ meetrika muudeti väärtuseks %d.";
 "adapter.metrics" = "IPv4: %d, IPv6: %d";
+"error.permissionDenied" = "Adapteri sätete muutmiseks on vaja administraatori õigusi.";
+"error.adapterNotFound" = "Valitud adapter ei ole enam saadaval.";
+"error.invalidMetricValue" = "Sobimatu meetrika väärtus. Sisesta mittenegatiivne täisarv.";
+"error.systemError" = "Süsteemiviga (kood %d): %@";
+"error.unknown" = "Tundmatu viga.";
