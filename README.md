@@ -43,6 +43,8 @@ MainViewModel → UseCase → Repository → Gateway
 
 Contracts and implementations are separate Swift Package targets: `Gateway` / `GatewayImpl`, `Repository` / `RepositoryImpl`, and `UseCase` / `UseCaseImpl`. The repository caches adapters through `AsyncCurrentValue` and exposes updates through `AsyncStream`.
 
+See [Architecture](docs/ARCHITECTURE.md) for the complete target graph and dependency rules.
+
 ## Windows App Runtime
 
 The current WinUI backend is framework-dependent: a standalone `.exe` does not include Windows App Runtime. For development, run `Setup-WindowsAppRuntime.ps1`. A future public release must either ship the installer next to the app or use an MSIX package. The official runtime installer supports silent installation with `--quiet`. See [Microsoft's unpackaged app deployment guide](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/deploy-unpackaged-apps) and the [SwiftCrossUI WinUIBackend guide](https://docs.swiftcrossui.dev/documentation/swiftcrossui/winuibackend).

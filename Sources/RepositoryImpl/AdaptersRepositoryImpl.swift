@@ -33,4 +33,25 @@ public actor AdaptersRepositoryImpl<Gateway: AdaptersGateway>: AdaptersRepositor
         await adapters.update(reorderedAdapters)
         return true
     }
+
+    public func updateAdapterMetric(adapterID: NetworkAdapter.ID, metric: Int) async -> Bool {
+        guard metric >= 0 else {
+            return false
+        }
+
+        var updatedAdapters = await adapters.current()
+        guard let index = updatedAdapters.firstIndex(where: { $0.id == adapterID }) else {
+            return false
+        }
+
+        updatedAdapters[index].metric = metric
+        updatedAdapters.sort { $0.metric < $1.metric }
+
+        for index in updatedAdapters.indices {
+            updatedAdapters[index].priority = index + 1
+        }
+
+        await adapters.update(updatedAdapters)
+        return true
+    }
 }

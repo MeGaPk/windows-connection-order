@@ -16,7 +16,11 @@
 "action.moveUp" = "Liiguta valitud üles";
 "action.moveDown" = "Liiguta valitud alla";
 "action.applyDemo" = "Rakenda demo muudatused";
+"action.toggleTheme" = "Vaheta hele / tume";
 "status.nothingSelected" = "Vali adapter, et muuta selle asukohta.";
+"status.selected" = "%@ on valitud.";
+"status.metricApplied" = "%@ meetrika muudeti väärtuseks %d.";
+"status.invalidMetric" = "Sisesta meetrika jaoks mittenegatiivne täisarv.";
 "status.demoApplied" = "Demo järjekord on uuendatud. Süsteemi sätteid ei muudetud.";
 "status.metricChanged" = "Adapteri %@ meetrika muudeti väärtuseks %d.";
 "adapter.metrics" = "IPv4: %d, IPv6: %d";

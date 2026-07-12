@@ -10,7 +10,8 @@ private typealias MainRepository = AdaptersRepositoryImpl<MockAdaptersGateway>
 private typealias ApplicationDependencies = MainDependencies<
     StreamAdaptersUseCaseImpl<MainRepository>,
     RefreshAdaptersUseCaseImpl<MainRepository>,
-    ReorderAdaptersUseCaseImpl<MainRepository>
+    ReorderAdaptersUseCaseImpl<MainRepository>,
+    UpdateAdapterMetricUseCaseImpl<MainRepository>
 >
 
 @main
@@ -23,7 +24,8 @@ struct WindowsConnectionOrderApp: App {
         let dependencies = ApplicationDependencies(
             streamAdaptersUseCase: StreamAdaptersUseCaseImpl(repository: repository),
             refreshAdaptersUseCase: RefreshAdaptersUseCaseImpl(repository: repository),
-            reorderAdaptersUseCase: ReorderAdaptersUseCaseImpl(repository: repository)
+            reorderAdaptersUseCase: ReorderAdaptersUseCaseImpl(repository: repository),
+            updateAdapterMetricUseCase: UpdateAdapterMetricUseCaseImpl(repository: repository)
         )
 
         viewModel = MainViewModel(

@@ -16,7 +16,11 @@
 "action.moveUp" = "Move selected up";
 "action.moveDown" = "Move selected down";
 "action.applyDemo" = "Apply demo changes";
+"action.toggleTheme" = "Toggle light / dark";
 "status.nothingSelected" = "Select an adapter to change its position.";
+"status.selected" = "%@ selected.";
+"status.metricApplied" = "Metric for %@ changed to %d.";
+"status.invalidMetric" = "Enter a non-negative whole number for the metric.";
 "status.demoApplied" = "Demo order updated. No system settings were changed.";
 "status.metricChanged" = "Metric for %@ changed to %d.";
 "adapter.metrics" = "IPv4: %d, IPv6: %d";
