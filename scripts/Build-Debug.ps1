@@ -2,4 +2,4 @@
 
 & (Join-Path $PSScriptRoot 'Generate-Localizables.ps1')
 
-Invoke-Swift -Arguments @('run', 'WindowsConnectionOrder')
+Invoke-Swift -Arguments @('build', '-c', 'debug')

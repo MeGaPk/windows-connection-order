@@ -1,5 +1,7 @@
 . (Join-Path $PSScriptRoot 'Common.ps1')
 
+& (Join-Path $PSScriptRoot 'Generate-Localizables.ps1')
+
 $releaseDirectory = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot 'release_build'))
 $projectPrefix = [System.IO.Path]::GetFullPath($ProjectRoot).TrimEnd('\') + '\'
 if (-not $releaseDirectory.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {

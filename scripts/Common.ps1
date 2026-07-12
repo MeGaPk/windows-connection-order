@@ -12,6 +12,22 @@ if ($script:RequiredSwiftVersion -notmatch '^6\.3\.\d+$') {
     throw ".swift-version must pin a Swift 6.3 patch release, for example 6.3.3. Current value: '$script:RequiredSwiftVersion'."
 }
 
+function Initialize-SwiftEnvironment {
+    $swiftRoot = Join-Path $env:LOCALAPPDATA 'Programs\Swift'
+    $runtimeBin = Join-Path $swiftRoot "Runtimes\$script:RequiredSwiftVersion\usr\bin"
+    if (Test-Path -LiteralPath $runtimeBin) {
+        $pathEntries = $env:Path -split ';' | Where-Object { $_ }
+        if ($pathEntries -notcontains $runtimeBin) {
+            $env:Path = "$runtimeBin;$env:Path"
+        }
+    }
+
+    $sdkRoot = Join-Path $swiftRoot "Platforms\$script:RequiredSwiftVersion\Windows.platform\Developer\SDKs\Windows.sdk"
+    if (Test-Path -LiteralPath $sdkRoot) {
+        $env:SDKROOT = $sdkRoot
+    }
+}
+
 function Get-InstalledSwiftExecutable {
     $expectedToolchain = Join-Path $env:LOCALAPPDATA "Programs\Swift\Toolchains\$script:RequiredSwiftVersion+Asserts\usr\bin\swift.exe"
     if (Test-Path -LiteralPath $expectedToolchain) {
@@ -51,6 +67,8 @@ function Get-SwiftVersion {
 }
 
 function Require-Swift {
+    Initialize-SwiftEnvironment
+
     $swift = Get-InstalledSwiftExecutable
     if ($null -eq $swift) {
         throw "Swift $script:RequiredSwiftVersion is not available. Run .\scripts\Setup-Swift.ps1 first."

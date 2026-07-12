@@ -35,6 +35,18 @@ $files = @{
       "problemMatcher": []
     },
     {
+      "label": "Generate localization accessors",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\Generate-Localizables.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Run demo",
       "type": "shell",
       "command": "powershell",
@@ -43,6 +55,18 @@ $files = @{
         "Bypass",
         "-File",
         "${workspaceFolder}\\scripts\\Run-Demo.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build debug",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\Build-Debug.ps1"
       ],
       "problemMatcher": []
     },

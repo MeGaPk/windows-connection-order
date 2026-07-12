@@ -4,10 +4,11 @@ import PackageDescription
 
 let package = Package(
     name: "WindowsConnectionOrder",
+    defaultLocalization: "en",
     products: [
         .executable(
             name: "WindowsConnectionOrder",
-            targets: ["WindowsConnectionOrder"]
+            targets: ["EntryPoint"]
         )
     ],
     dependencies: [
@@ -17,13 +18,44 @@ let package = Package(
         )
     ],
     targets: [
-        .executableTarget(
-            name: "WindowsConnectionOrder",
+        .target(name: "Domain"),
+        .target(name: "Utils"),
+        .target(name: "Gateway", dependencies: ["Domain"]),
+        .target(name: "GatewayImpl", dependencies: ["Domain", "Gateway"]),
+        .target(name: "Repository", dependencies: ["Domain"]),
+        .target(
+            name: "RepositoryImpl",
+            dependencies: ["Domain", "Gateway", "Repository", "Utils"]
+        ),
+        .target(name: "UseCase", dependencies: ["Domain"]),
+        .target(
+            name: "UseCaseImpl",
+            dependencies: ["Domain", "Repository", "UseCase"]
+        ),
+        .target(
+            name: "Localization",
+            resources: [.process("Resources")]
+        ),
+        .target(
+            name: "Nodes",
             dependencies: [
-                .product(name: "SwiftCrossUI", package: "swift-cross-ui"),
-                .product(name: "DefaultBackend", package: "swift-cross-ui")
-            ],
-            path: "Sources/WindowsNetworkManager"
+                "Domain",
+                "Localization",
+                "UseCase",
+                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+            ]
+        ),
+        .executableTarget(
+            name: "EntryPoint",
+            dependencies: [
+                "GatewayImpl",
+                "Localization",
+                "Nodes",
+                "RepositoryImpl",
+                "UseCaseImpl",
+                .product(name: "DefaultBackend", package: "swift-cross-ui"),
+                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+            ]
         )
     ]
 )
