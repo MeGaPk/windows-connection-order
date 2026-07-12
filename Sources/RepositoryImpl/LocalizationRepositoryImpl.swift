@@ -1,5 +1,5 @@
 import Foundation
-import Localization
+import Domain
 import Repository
 import Utils
 

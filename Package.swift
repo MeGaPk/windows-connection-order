@@ -26,18 +26,19 @@ let package = Package(
             name: "WindowsNetworkGatewayImpl",
             dependencies: ["Domain", "Gateway"]
         ),
-        .target(name: "Repository", dependencies: ["Domain", "Localization"]),
+        .target(name: "Repository", dependencies: ["Domain"]),
         .target(
             name: "RepositoryImpl",
-            dependencies: ["Domain", "Gateway", "Localization", "Repository", "Utils"]
+            dependencies: ["Domain", "Gateway", "Repository", "Utils"]
         ),
-        .target(name: "UseCase", dependencies: ["Domain", "Localization"]),
+        .target(name: "UseCase", dependencies: ["Domain"]),
         .target(
             name: "UseCaseImpl",
-            dependencies: ["Domain", "Localization", "Repository", "UseCase"]
+            dependencies: ["Domain", "Repository", "UseCase"]
         ),
         .target(
             name: "Localization",
+            dependencies: ["Domain"],
             resources: [.process("Resources")]
         ),
         .target(

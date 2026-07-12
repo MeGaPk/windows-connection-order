@@ -1,4 +1,4 @@
-import Localization
+import Domain
 import Repository
 import UseCase
 

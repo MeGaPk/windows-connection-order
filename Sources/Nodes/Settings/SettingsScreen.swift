@@ -1,3 +1,4 @@
+import Domain
 import Localization
 import SwiftCrossUI
 import UIUtils

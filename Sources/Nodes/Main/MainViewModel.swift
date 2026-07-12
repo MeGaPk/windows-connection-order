@@ -1,5 +1,4 @@
 import Domain
-import Localization
 import SwiftCrossUI
 
 @MainActor

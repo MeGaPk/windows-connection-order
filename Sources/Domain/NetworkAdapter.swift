@@ -1,14 +1,20 @@
-import Foundation
-
 public struct NetworkAdapter: Identifiable, Sendable {
-    public let id: UUID
+    public struct ID: Hashable, Sendable {
+        public let luid: UInt64
+
+        public init(luid: UInt64) {
+            self.luid = luid
+        }
+    }
+
+    public let id: ID
     public var metric: Int
     public let name: String
     public let ipv4: IPv4Configuration
     public let ipv6: IPv6Configuration
 
     public init(
-        id: UUID = UUID(),
+        id: ID,
         metric: Int,
         name: String,
         ipv4: IPv4Configuration,

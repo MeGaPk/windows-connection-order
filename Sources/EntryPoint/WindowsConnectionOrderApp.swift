@@ -6,6 +6,12 @@ import Nodes
 import RepositoryImpl
 import SwiftCrossUI
 import UseCaseImpl
+
+#if os(Windows)
+import WindowsNetworkGatewayImpl
+#else
+import GatewayImpl
+#endif
 import GatewayImpl
 
 @main
@@ -16,7 +22,7 @@ struct WindowsConnectionOrderApp: App {
     private var settingsDependencies: SettingsDependencies!
 
     init() {
-        let adaptersRepository = AdaptersRepositoryImpl(gateway: MockAdaptersGateway())
+        let adaptersRepository = AdaptersRepositoryImpl(gateway: adaptersGateway())
         let localizationRepository = LocalizationRepositoryImpl()
         let colorSchemeRepository = ColorSchemeRepositoryImpl()
         mainDependencies = MainDependencies(
@@ -59,6 +65,14 @@ struct WindowsConnectionOrderApp: App {
             viewModel: SettingsViewModel(dependencies: settingsDependencies),
             localizables: Localizables(locale: .systemDefault)
         )
+    }
+
+    private func adaptersGateway() -> any AdaptersGateway {
+        #if os(Windows)
+        WindowsAdaptersGatewayImpl()
+        #else
+        MockAdaptersGateway()
+        #endif
     }
 
 }

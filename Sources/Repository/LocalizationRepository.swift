@@ -1,4 +1,4 @@
-import Localization
+import Domain
 
 public protocol LocalizationRepository: Sendable {
     func streamLocales() async -> AsyncStream<LocaleSettings>

@@ -1,4 +1,5 @@
 import Foundation
+import Domain
 
 public struct Localizables {
     let bundle: Bundle

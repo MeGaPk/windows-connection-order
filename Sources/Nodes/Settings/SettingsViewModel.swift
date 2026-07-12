@@ -1,6 +1,5 @@
-import Localization
-import SwiftCrossUI
 import Domain
+import SwiftCrossUI
 
 @MainActor
 @ObservableObject
