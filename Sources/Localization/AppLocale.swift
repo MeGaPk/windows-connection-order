@@ -17,3 +17,13 @@ public enum AppLocale: String, CaseIterable, Sendable {
         return .english
     }
 }
+
+public struct LocaleSettings: Sendable, Equatable {
+    public let availableLocales: [AppLocale]
+    public let selectedLocale: AppLocale
+
+    public init(availableLocales: [AppLocale], selectedLocale: AppLocale) {
+        self.availableLocales = availableLocales
+        self.selectedLocale = selectedLocale
+    }
+}

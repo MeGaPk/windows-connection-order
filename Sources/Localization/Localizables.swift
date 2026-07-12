@@ -3,8 +3,10 @@ import Foundation
 public struct Localizables {
     let bundle: Bundle
     let locale: Locale
+    public let appLocale: AppLocale
 
     public init(locale: AppLocale) {
+        appLocale = locale
         self.locale = Locale(identifier: locale.rawValue)
 
         if let languageURL = Bundle.module.url(forResource: locale.rawValue, withExtension: "lproj"),

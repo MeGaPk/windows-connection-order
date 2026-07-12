@@ -15,12 +15,8 @@
 "action.selected" = "Выбрано";
 "action.moveUp" = "Поднять выбранный";
 "action.moveDown" = "Опустить выбранный";
-"action.applyDemo" = "Применить демо-изменения";
 "action.toggleTheme" = "Светлая / тёмная тема";
 "status.nothingSelected" = "Выберите адаптер, чтобы изменить его позицию.";
 "status.selected" = "Выбран адаптер %@.";
-"status.metricApplied" = "Метрика для %@ изменена на %d.";
-"status.invalidMetric" = "Введите целое неотрицательное значение метрики.";
-"status.demoApplied" = "Демо-порядок обновлён. Системные настройки не изменялись.";
 "status.metricChanged" = "Метрика %@ изменена на %d.";
 "adapter.metrics" = "IPv4: %d, IPv6: %d";

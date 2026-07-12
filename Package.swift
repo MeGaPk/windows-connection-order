@@ -22,25 +22,32 @@ let package = Package(
         .target(name: "Utils"),
         .target(name: "Gateway", dependencies: ["Domain"]),
         .target(name: "GatewayImpl", dependencies: ["Domain", "Gateway"]),
-        .target(name: "Repository", dependencies: ["Domain"]),
+        .target(name: "Repository", dependencies: ["Domain", "Localization"]),
         .target(
             name: "RepositoryImpl",
-            dependencies: ["Domain", "Gateway", "Repository", "Utils"]
+            dependencies: ["Domain", "Gateway", "Localization", "Repository", "Utils"]
         ),
-        .target(name: "UseCase", dependencies: ["Domain"]),
+        .target(name: "UseCase", dependencies: ["Domain", "Localization"]),
         .target(
             name: "UseCaseImpl",
-            dependencies: ["Domain", "Repository", "UseCase"]
+            dependencies: ["Domain", "Localization", "Repository", "UseCase"]
         ),
         .target(
             name: "Localization",
             resources: [.process("Resources")]
         ),
         .target(
+            name: "UIUtils",
+            dependencies: [
+                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+            ]
+        ),
+        .target(
             name: "Nodes",
             dependencies: [
                 "Domain",
                 "Localization",
+                "UIUtils",
                 "UseCase",
                 .product(name: "SwiftCrossUI", package: "swift-cross-ui")
             ]
