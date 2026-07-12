@@ -35,6 +35,18 @@ $files = @{
       "problemMatcher": []
     },
     {
+      "label": "Setup Windows App Runtime",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\Setup-WindowsAppRuntime.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Generate localization accessors",
       "type": "shell",
       "command": "powershell",
