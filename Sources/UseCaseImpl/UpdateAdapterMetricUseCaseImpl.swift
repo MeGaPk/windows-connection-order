@@ -2,10 +2,10 @@ import Domain
 import Repository
 import UseCase
 
-public struct UpdateAdapterMetricUseCaseImpl<Repository: AdaptersRepository>: UpdateAdapterMetricUseCase {
-    private let repository: Repository
+public struct UpdateAdapterMetricUseCaseImpl: UpdateAdapterMetricUseCase {
+    private let repository: any AdaptersRepository
 
-    public init(repository: Repository) {
+    public init(repository: any AdaptersRepository) {
         self.repository = repository
     }
 

@@ -2,10 +2,10 @@ import Domain
 import Repository
 import UseCase
 
-public struct SetLocaleUseCaseImpl<Repository: LocalizationRepository>: SetLocaleUseCase {
-    private let repository: Repository
+public struct SetLocaleUseCaseImpl: SetLocaleUseCase {
+    private let repository: any LocalizationRepository
 
-    public init(repository: Repository) {
+    public init(repository: any LocalizationRepository) {
         self.repository = repository
     }
 

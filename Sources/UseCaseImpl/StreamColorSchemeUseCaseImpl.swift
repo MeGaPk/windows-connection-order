@@ -2,10 +2,10 @@ import Domain
 import Repository
 import UseCase
 
-public struct StreamColorSchemeUseCaseImpl<Repository: ColorSchemeRepository>: StreamColorSchemeUseCase {
-    private let repository: Repository
+public struct StreamColorSchemeUseCaseImpl: StreamColorSchemeUseCase {
+    private let repository: any ColorSchemeRepository
 
-    public init(repository: Repository) {
+    public init(repository: any ColorSchemeRepository) {
         self.repository = repository
     }
 

@@ -2,10 +2,10 @@ import Domain
 import Repository
 import UseCase
 
-public struct StreamLocalesUseCaseImpl<Repository: LocalizationRepository>: StreamLocalesUseCase {
-    private let repository: Repository
+public struct StreamLocalesUseCaseImpl: StreamLocalesUseCase {
+    private let repository: any LocalizationRepository
 
-    public init(repository: Repository) {
+    public init(repository: any LocalizationRepository) {
         self.repository = repository
     }
 

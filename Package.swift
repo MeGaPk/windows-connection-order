@@ -9,12 +9,20 @@ let package = Package(
         .executable(
             name: "WindowsConnectionOrder",
             targets: ["EntryPoint"]
+        ),
+        .executable(
+            name: "WindowsConnectionOrderCLI",
+            targets: ["CommandLine"]
         )
     ],
     dependencies: [
         .package(
             url: "https://github.com/moreSwift/swift-cross-ui",
             exact: "0.8.0"
+        ),
+        .package(
+            url: "https://github.com/apple/swift-argument-parser",
+            exact: "1.8.2"
         )
     ],
     targets: [
@@ -35,6 +43,17 @@ let package = Package(
         .target(
             name: "UseCaseImpl",
             dependencies: ["Domain", "Repository", "UseCase"]
+        ),
+        .target(
+            name: "AppComposition",
+            dependencies: [
+                "Gateway",
+                "GatewayImpl",
+                "RepositoryImpl",
+                "UseCase",
+                "UseCaseImpl",
+                "WindowsNetworkGatewayImpl"
+            ]
         ),
         .target(
             name: "Localization",
@@ -60,14 +79,21 @@ let package = Package(
         .executableTarget(
             name: "EntryPoint",
             dependencies: [
-                "GatewayImpl",
+                "AppComposition",
                 "Localization",
                 "Nodes",
                 "RepositoryImpl",
                 "UseCaseImpl",
-                "WindowsNetworkGatewayImpl",
                 .product(name: "DefaultBackend", package: "swift-cross-ui"),
                 .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+            ]
+        ),
+        .executableTarget(
+            name: "CommandLine",
+            dependencies: [
+                "AppComposition",
+                "Domain",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         )
     ]

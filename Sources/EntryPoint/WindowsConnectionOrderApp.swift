@@ -1,18 +1,11 @@
+import AppComposition
 import DefaultBackend
 import Domain
-import Gateway
 import Localization
 import Nodes
 import RepositoryImpl
 import SwiftCrossUI
 import UseCaseImpl
-
-#if os(Windows)
-import WindowsNetworkGatewayImpl
-#else
-import GatewayImpl
-#endif
-import GatewayImpl
 
 @main
 @MainActor
@@ -22,14 +15,14 @@ struct WindowsConnectionOrderApp: App {
     private var settingsDependencies: SettingsDependencies!
 
     init() {
-        let adaptersRepository = AdaptersRepositoryImpl(gateway: adaptersGateway())
+        let adaptersUseCases = AppComposition.makeSystemAdaptersUseCases()
         let localizationRepository = LocalizationRepositoryImpl()
         let colorSchemeRepository = ColorSchemeRepositoryImpl()
         mainDependencies = MainDependencies(
-            streamAdaptersUseCase: StreamAdaptersUseCaseImpl(repository: adaptersRepository),
-            refreshAdaptersUseCase: RefreshAdaptersUseCaseImpl(repository: adaptersRepository),
-            reorderAdaptersUseCase: ReorderAdaptersUseCaseImpl(repository: adaptersRepository),
-            updateAdapterMetricUseCase: UpdateAdapterMetricUseCaseImpl(repository: adaptersRepository),
+            streamAdaptersUseCase: adaptersUseCases.stream,
+            refreshAdaptersUseCase: adaptersUseCases.refresh,
+            reorderAdaptersUseCase: adaptersUseCases.reorder,
+            updateAdapterMetricUseCase: adaptersUseCases.updateMetric,
             streamLocalesUseCase: StreamLocalesUseCaseImpl(repository: localizationRepository),
             streamColorSchemeUseCase: StreamColorSchemeUseCaseImpl(repository: colorSchemeRepository),
             navigationPath: $navigationPath
@@ -65,14 +58,6 @@ struct WindowsConnectionOrderApp: App {
             viewModel: SettingsViewModel(dependencies: settingsDependencies),
             localizables: Localizables(locale: .systemDefault)
         )
-    }
-
-    private func adaptersGateway() -> any AdaptersGateway {
-        #if os(Windows)
-        WindowsAdaptersGatewayImpl()
-        #else
-        MockAdaptersGateway()
-        #endif
     }
 
 }
