@@ -1,13 +1,13 @@
 import DefaultBackend
 import Domain
-import GatewayImpl
+import Gateway
 import Localization
 import Nodes
 import RepositoryImpl
 import SwiftCrossUI
 import UseCaseImpl
+import GatewayImpl
 
-private typealias MainRepository = AdaptersRepositoryImpl<MockAdaptersGateway>
 @main
 @MainActor
 struct WindowsConnectionOrderApp: App {
@@ -16,7 +16,7 @@ struct WindowsConnectionOrderApp: App {
     private var settingsDependencies: SettingsDependencies!
 
     init() {
-        let adaptersRepository = MainRepository(gateway: MockAdaptersGateway())
+        let adaptersRepository = AdaptersRepositoryImpl(gateway: MockAdaptersGateway())
         let localizationRepository = LocalizationRepositoryImpl()
         let colorSchemeRepository = ColorSchemeRepositoryImpl()
         mainDependencies = MainDependencies(
@@ -60,4 +60,5 @@ struct WindowsConnectionOrderApp: App {
             localizables: Localizables(locale: .systemDefault)
         )
     }
+
 }

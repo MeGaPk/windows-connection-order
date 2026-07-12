@@ -22,6 +22,10 @@ let package = Package(
         .target(name: "Utils"),
         .target(name: "Gateway", dependencies: ["Domain"]),
         .target(name: "GatewayImpl", dependencies: ["Domain", "Gateway"]),
+        .target(
+            name: "WindowsNetworkGatewayImpl",
+            dependencies: ["Domain", "Gateway"]
+        ),
         .target(name: "Repository", dependencies: ["Domain", "Localization"]),
         .target(
             name: "RepositoryImpl",
@@ -60,6 +64,7 @@ let package = Package(
                 "Nodes",
                 "RepositoryImpl",
                 "UseCaseImpl",
+                "WindowsNetworkGatewayImpl",
                 .product(name: "DefaultBackend", package: "swift-cross-ui"),
                 .product(name: "SwiftCrossUI", package: "swift-cross-ui")
             ]

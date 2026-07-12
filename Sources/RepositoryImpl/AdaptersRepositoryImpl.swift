@@ -3,11 +3,11 @@ import Gateway
 import Repository
 import Utils
 
-public actor AdaptersRepositoryImpl<Gateway: AdaptersGateway>: AdaptersRepository {
-    private let gateway: Gateway
+public actor AdaptersRepositoryImpl: AdaptersRepository {
+    private let gateway: any AdaptersGateway
     private let adapters = AsyncCurrentValue<[NetworkAdapter]>([])
 
-    public init(gateway: Gateway) {
+    public init(gateway: any AdaptersGateway) {
         self.gateway = gateway
     }
 
