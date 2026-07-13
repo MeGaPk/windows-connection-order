@@ -1,11 +1,18 @@
+//
+//  Main.strings
+//  WindowsConnectionOrder
+//
+//  Localized strings for the main screen.
+//
+
 "app.title" = "Windows Connection Order";
-"app.subtitle" = "Windows network adapters are read. Changing network settings is not available yet.";
+"app.subtitle" = "Windows network adapters are read. Changing network settings is not yet available.";
 "language.label" = "Language:";
 "language.english" = "English";
 "language.russian" = "Russian";
 "language.estonian" = "Estonian";
-"metric.title" = "Connection metric";
-"metric.help" = "Windows uses lower metrics first. Press Enter after editing a metric to apply and sort the list.";
+"metric.title" = "Connection Metric";
+"metric.help" = "Windows prefers a lower metric. Press Enter after changing to apply and sort the list.";
 "column.order" = "#";
 "column.adapter" = "Adapter";
 "column.ipv4" = "Local IPv4";
@@ -13,8 +20,8 @@
 "column.metric" = "Metric";
 "action.select" = "Select";
 "action.selected" = "Selected";
-"action.moveUp" = "Move selected up";
-"action.moveDown" = "Move selected down";
+"action.moveUp" = "Move Selected Up";
+"action.moveDown" = "Move Selected Down";
 "action.settings" = "Settings";
 "action.back" = "Back";
 "action.dismiss" = "Dismiss";

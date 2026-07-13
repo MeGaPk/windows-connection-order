@@ -83,9 +83,9 @@ public struct MainScreen: View {
 
     @ViewBuilder
     private var errorStatus: some View {
-        if let adapterError = viewModel.adapterError {
+        if let errorMessage = viewModel.errorMessage {
             HStack(alignment: .top, spacing: 8) {
-                Text(localizedMessage(for: adapterError))
+                Text(errorMessage)
                     .foregroundColor(UIColors.errorForeground)
                 Spacer()
                 Button(localizables.main.actionDismiss) {

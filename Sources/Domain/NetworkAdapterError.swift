@@ -1,12 +1,8 @@
-//
-//  NetworkAdapterError.swift
-//  Domain
-//
-//  Typed errors for adapter-related operations. Used with Swift 6 typed throws
-//  (e.g. `throws(NetworkAdapterError)`) so the call site can rely on the
-//  compiler-checked exhaustive `catch`.
-//
+import Foundation
 
+/// Typed errors for adapter-related operations. Used with Swift 6 typed throws
+/// (e.g. `throws(NetworkAdapterError)`) so the call site can rely on the
+/// compiler-checked exhaustive `catch`.
 public enum NetworkAdapterError: Error, Sendable {
     /// Operation requires elevated (administrator) privileges.
     case permissionDenied

@@ -32,8 +32,14 @@ struct AdaptersTable: View {
             tableHeaderCell(localizables.main.columnOrder, alignment: .trailing)
         } cells: {
             ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
-                adapterCell(for: item.element, priority: item.offset + 1) {
-                    tableTextCell("\(item.offset + 1)", alignment: .trailing)
+                tableTextCell(
+                    "\(item.offset + 1)",
+                    alignment: .trailing,
+                    isSelected: item.element.id == viewModel.selectedAdapter?.id,
+                    priority: item.offset + 1
+                )
+                .onTapGesture {
+                    viewModel.selectAdapter(id: item.element.id)
                 }
             }
         }
@@ -44,8 +50,13 @@ struct AdaptersTable: View {
             tableHeaderCell(localizables.main.columnAdapter)
         } cells: {
             ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
-                adapterCell(for: item.element, priority: item.offset + 1) {
-                    tableTextCell(item.element.name)
+                tableTextCell(
+                    item.element.name,
+                    isSelected: item.element.id == viewModel.selectedAdapter?.id,
+                    priority: item.offset + 1
+                )
+                .onTapGesture {
+                    viewModel.selectAdapter(id: item.element.id)
                 }
             }
         }
@@ -56,8 +67,13 @@ struct AdaptersTable: View {
             tableHeaderCell(localizables.main.columnIPv4)
         } cells: {
             ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
-                adapterCell(for: item.element, priority: item.offset + 1) {
-                    tableTextCell(item.element.ipv4.address?.description ?? "-")
+                tableTextCell(
+                    item.element.ipv4.address?.description ?? "-",
+                    isSelected: item.element.id == viewModel.selectedAdapter?.id,
+                    priority: item.offset + 1
+                )
+                .onTapGesture {
+                    viewModel.selectAdapter(id: item.element.id)
                 }
             }
         }
@@ -68,8 +84,13 @@ struct AdaptersTable: View {
             tableHeaderCell(localizables.main.columnIPv6)
         } cells: {
             ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
-                adapterCell(for: item.element, priority: item.offset + 1) {
-                    tableTextCell(item.element.ipv6.address?.description ?? "-")
+                tableTextCell(
+                    item.element.ipv6.address?.description ?? "-",
+                    isSelected: item.element.id == viewModel.selectedAdapter?.id,
+                    priority: item.offset + 1
+                )
+                .onTapGesture {
+                    viewModel.selectAdapter(id: item.element.id)
                 }
             }
         }
@@ -80,16 +101,20 @@ struct AdaptersTable: View {
             tableHeaderCell(localizables.main.columnMetric)
         } cells: {
             ForEach(Array(viewModel.adapters.enumerated()), id: \.element.id) { item in
-                adapterCell(for: item.element, priority: item.offset + 1) {
-                    metricCell(for: item.element)
-                }
+                metricCell(for: item.element, priority: item.offset + 1)
             }
         }
     }
 
-    private func metricCell(for adapter: NetworkAdapter) -> some View {
-        Group {
-            if adapter.id == viewModel.selectedAdapter?.id {
+    private func metricCell(
+        for adapter: NetworkAdapter,
+        priority: Int
+    ) -> some View {
+        let isSelected = adapter.id == viewModel.selectedAdapter?.id
+        let background = rowBackground(isSelected: isSelected, priority: priority)
+
+        return Group {
+            if isSelected {
                 TextField(localizables.main.columnMetric, text: $viewModel.metricInput)
                     .onSubmit { viewModel.applyMetric() }
             }
@@ -97,8 +122,12 @@ struct AdaptersTable: View {
                 Text("\(adapter.metric)")
             }
         }
-        .padding(6)
-        .frame(height: 40, alignment: .leading)
+        .padding(.horizontal, 6)
+        .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
+        .background(background)
+        .onTapGesture {
+            viewModel.selectAdapter(id: adapter.id)
+        }
     }
 
     private func tableHeaderCell(
@@ -107,34 +136,25 @@ struct AdaptersTable: View {
     ) -> some View {
         Text(value)
             .emphasized()
-            .padding(6)
-            .frame(height: 38, alignment: alignment)
+            .padding(.horizontal, 6)
+            .frame(maxWidth: .infinity, minHeight: 38, alignment: alignment)
             .background(UIColors.tableHeaderBackground)
     }
 
     private func tableTextCell(
         _ value: String,
-        alignment: Alignment = .leading
+        alignment: Alignment = .leading,
+        isSelected: Bool,
+        priority: Int
     ) -> some View {
         Text(value)
-            .padding(6)
-            .frame(height: 40, alignment: alignment)
+            .padding(.horizontal, 6)
+            .frame(maxWidth: .infinity, minHeight: 40, alignment: alignment)
+            .background(rowBackground(isSelected: isSelected, priority: priority))
     }
 
-    private func adapterCell<Content: View>(
-        for adapter: NetworkAdapter,
-        priority: Int,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        content()
-            .background(rowBackground(for: adapter, priority: priority))
-            .onTapGesture {
-                viewModel.selectAdapter(id: adapter.id)
-            }
-    }
-
-    private func rowBackground(for adapter: NetworkAdapter, priority: Int) -> Color {
-        if adapter.id == viewModel.selectedAdapter?.id {
+    private func rowBackground(isSelected: Bool, priority: Int) -> Color {
+        if isSelected {
             return UIColors.selectedRowBackground
         }
 

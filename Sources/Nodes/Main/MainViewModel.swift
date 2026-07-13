@@ -1,4 +1,5 @@
 import Domain
+import Localization
 import SwiftCrossUI
 
 @MainActor
@@ -15,7 +16,9 @@ public final class MainViewModel {
     public var localeSettings: LocaleSettings?
     public var appColorScheme: AppColorScheme = .automatic
 
-    public var adapterError: NetworkAdapterError?
+    /// Last user-facing error, surfaced as a status line in the UI.
+    /// `nil` means "no error to show".
+    public var errorMessage: String?
 
     public init(dependencies: MainDependencies) {
         self.dependencies = dependencies
@@ -45,7 +48,7 @@ public final class MainViewModel {
         }
         selectedAdapter = adapter
         metricInput = String(adapter.metric)
-        adapterError = nil
+        errorMessage = nil
     }
 
     public func moveSelectedAdapter(by offset: Int) {
@@ -61,9 +64,9 @@ public final class MainViewModel {
                     selectedAdapterID: adapterID,
                     offset: offset
                 )
-                self?.adapterError = nil
-            } catch {
-                self?.adapterError = Self.networkAdapterError(from: error)
+                self?.errorMessage = nil
+            } catch let error as NetworkAdapterError {
+                self?.errorMessage = self?.localizedMessage(for: error)
             }
         }
     }
@@ -73,7 +76,7 @@ public final class MainViewModel {
             return
         }
         guard let metric = Int(metricInput), metric >= 0 else {
-            adapterError = .invalidMetricValue(value: -1)
+            errorMessage = localizedMessage(for: .invalidMetricValue(value: -1))
             return
         }
 
@@ -85,15 +88,38 @@ public final class MainViewModel {
                     adapterID: adapterID,
                     metric: metric
                 )
-                self?.adapterError = nil
-            } catch {
-                self?.adapterError = Self.networkAdapterError(from: error)
+                self?.errorMessage = nil
+            } catch let error as NetworkAdapterError {
+                self?.errorMessage = self?.localizedMessage(for: error)
             }
         }
     }
 
     public func clearError() {
-        adapterError = nil
+        errorMessage = nil
+    }
+
+    private func localizedMessage(for error: NetworkAdapterError) -> String {
+        let localizables = currentLocalizables()
+        switch error {
+            case .permissionDenied:
+                return localizables.main.errorPermissionDenied
+            case .adapterNotFound:
+                return localizables.main.errorAdapterNotFound
+            case .invalidMetricValue:
+                return localizables.main.errorInvalidMetricValue
+            case .systemError(let code, let message):
+                return localizables.main.errorSystemError(Int(code), message)
+            case .unknown:
+                return localizables.main.errorUnknown
+        }
+    }
+
+    private func currentLocalizables() -> Localizables {
+        guard let selectedLocale = localeSettings?.selectedLocale else {
+            return Localizables(locale: .systemDefault)
+        }
+        return Localizables(locale: selectedLocale)
     }
 
     private func startAdaptersStream() {
@@ -123,14 +149,10 @@ public final class MainViewModel {
         Task { [weak self] in
             do {
                 try await refreshAdaptersUseCase.execute()
-            } catch {
-                self?.adapterError = Self.networkAdapterError(from: error)
+            } catch let error as NetworkAdapterError {
+                self?.errorMessage = self?.localizedMessage(for: error)
             }
         }
-    }
-
-    private static func networkAdapterError(from error: any Error) -> NetworkAdapterError {
-        error as? NetworkAdapterError ?? .unknown
     }
 
     private func startLocalesStream() {

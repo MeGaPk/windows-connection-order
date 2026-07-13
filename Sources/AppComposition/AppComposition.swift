@@ -10,7 +10,7 @@ import WindowsNetworkGatewayImpl
 public enum AppComposition {
     public static func makeSystemAdaptersUseCases() -> AdaptersUseCases {
         #if os(Windows)
-        makeAdaptersUseCases(gateway: WindowsAdaptersGatewayImpl())
+        makeAdaptersUseCases(gateway: WindowsNetworkGatewayImpl.WindowsAdaptersGatewayImpl())
         #else
         makeAdaptersUseCases(gateway: MockAdaptersGateway())
         #endif
