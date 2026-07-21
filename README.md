@@ -13,52 +13,29 @@ Windows Connection Order is an open-source Windows desktop application for viewi
 - A command-line executable that uses the same adapter use cases as the GUI.
 - A layered Swift Package architecture with separate targets for contracts, implementations, UI, and Windows-specific networking.
 
-## Recent changes (UI polish)
-
-This section summarizes the most recent merged-or-ready-to-merge UI work. The detailed PR description is in [`PR_BODY.md`](PR_BODY.md).
-
-### What landed
-
-- **Weighted table columns.** `ScrollableTable` now distributes its width across `ScrollableTableColumn` children by `weight / totalWeight` through a custom `EnvironmentKey` (`columnLayout`). `AdaptersTable` declares explicit weights (`Order 0.5 / Adapter 2.5 / IPv4 1.6 / IPv6 1.6 / Metric 1.0`) with `minWidth`s, so long adapter names no longer push IPv4/IPv6 columns off-screen and the `#` column stops hogging space. `Rectangle().fill().overlay(...)` dividers were replaced with the public `Divider(_:)`.
-- **Localization through the environment.** A new `LocalizablesProvider` (`@ObservableObject @unchecked Sendable final class`) is pushed once per screen through `\.localizablesProvider` and a `View.localizablesProvider(_:)` modifier. `MainViewModel` and `SettingsViewModel` hold the provider as a `weak var` and call `update(to:)` from the locale stream. Views read `localizablesProvider.current` instead of constructing a new `Localizables` on every `body` evaluation. `WindowsConnectionOrderApp` instantiates and threads the provider in `init()`.
-- **Split error UI.** `MainViewModel` separates `errorMessage` into `systemError` (full-width `ErrorBanner` for permission / system / unknown) and `metricFieldError` (inline `FieldHint` under the metric `TextField`). `applyMetric()` validates locally before the use case, so a bad integer never reaches the gateway.
-- **Refresh indicator.** `MainViewModel.isRefreshing` drives a small `HeaderProgressDot()` next to the Settings button while `RefreshAdaptersUseCase` is in flight. Disabled Move Up / Move Down render with `UIColors.Text.disabled`.
-- **Semantic color palette.** `UIColors` is now organized into `Surface`, `Text`, `Accent`, and `Divider` groups. The old flat names (`pageBackground`, `tableBackground`, `tableHeaderBackground`, `selectedRowBackground`, `alternateRowBackground`, `errorBackground`, `errorForeground`) are kept as public aliases so nothing else had to change.
-- **No domain, repository, use case, or gateway code was touched.** `Package.swift` is unchanged.
-
-### Files touched in the change
-
-- `Sources/UIUtils/UIColors.swift` — semantic groups + alias layer.
-- `Sources/UIUtils/ScrollableTable.swift` — weighted distribution.
-- `Sources/UIUtils/ErrorViews.swift` — new (`ErrorBanner`, `FieldHint`, `HeaderProgressDot`).
-- `Sources/Nodes/LocalizablesProvider.swift` — new.
-- `Sources/Nodes/Main/MainViewModel.swift`, `MainScreen.swift`, `AdaptersTable.swift`.
-- `Sources/Nodes/Settings/SettingsViewModel.swift`, `SettingsScreen.swift`.
-- `Sources/EntryPoint/WindowsConnectionOrderApp.swift`.
-
 ## Roadmap
 
 The project is still alpha. Items below are tracked in priority order; nothing here is committed to a date.
 
 ### Up next (small, mostly UI)
 
-- **Per-row reorder controls.** Add a small actions column in `AdaptersTable` with `▲` / `▼` buttons, disabled at the list boundaries. The Move Up / Move Down buttons above the table can then be promoted to a global "Apply changes" affordance once drag-and-drop is in.
+- **Per-row reorder controls.** Add a small actions column in the adapter table with `▲` / `▼` buttons, disabled at the list boundaries. The Move Up / Move Down buttons above the table can then be promoted to a global "Apply changes" affordance once drag-and-drop is in.
 - **Drag-and-drop reordering.** Teach `ScrollableTable` to host a drop handler and a "reorder-on-drag" event so rows can be dragged into a new position, matching the experience promised in [`PLAN.md`](PLAN.md).
-- **Metric editor polish.** Render `auto` (or a localized "automatic") instead of raw `0` when the adapter is in automatic mode. Show a `FieldHint` immediately on focus loss if the value is not a valid `Int`, instead of waiting for Enter.
-- **Auto-dismissing system errors.** `ErrorBanner` should fade out after 6–8 seconds for transient `systemError(code, _)` cases, keeping the manual `Dismiss` only for permission / unknown.
-- **Shared stream-observation helper.** `MainViewModel` and `SettingsViewModel` repeat the same `startLocalesStream` / `startColorSchemeStream` shape; a small `observe<T>(_:assign:)` helper in `UIUtils` would remove the duplication and centralize the cancellation pattern.
-- **Lazy row updates.** Switch `AdaptersTable` from `ForEach(Array(viewModel.adapters.enumerated()), id:)` to `List` with `id: \.id` so SwiftCrossUI's view graph can skip unchanged rows on stream updates.
+- **Metric editor polish.** Render `auto` (or a localized "automatic") instead of raw `0` when the adapter is in automatic mode. Show a field hint immediately on focus loss if the value is not a valid `Int`, instead of waiting for Enter.
+- **Auto-dismissing system errors.** System error banners should fade out after 6–8 seconds for transient cases, keeping the manual dismiss only for permission / unknown.
+- **Shared stream-observation helper.** The main and settings view models repeat the same locale / color-scheme stream shape; a small `observe<T>(_:assign:)` helper in `UIUtils` would remove the duplication and centralize the cancellation pattern.
+- **Lazy row updates.** Switch the adapter table from `ForEach(Array(viewModel.adapters.enumerated()), id:)` to `List` with `id: \.id` so SwiftCrossUI's view graph can skip unchanged rows on stream updates.
 - **Accessibility labels.** With the column weights settled, add localized `accessibilityLabel` values for screen readers — especially on the metric editor and on the per-row actions once they exist.
 
 ### Larger items
 
-- **Windows write support.** Implement metric writes through the Windows IP Helper API (`SetIpInterfaceEntry`) in `WindowsNetworkGatewayImpl`. Until this lands, the GUI is read-only on Windows.
-- **Administrator-mode UX.** Promote the `permissionDenied` branch from a transient `ErrorBanner` to a persistent banner with a "Restart as administrator" action, as described in `PLAN.md`.
+- **Windows write support.** Implement metric writes through the Windows IP Helper API (`SetIpInterfaceEntry`). Until this lands, the GUI is read-only on Windows.
+- **Administrator-mode UX.** Promote the `permissionDenied` branch from a transient banner to a persistent one with a "Restart as administrator" action, as described in [`PLAN.md`](PLAN.md).
 - **Split IPv4 / IPv6 metrics.** The data model already tracks per-protocol metrics; the table currently shows a single "Metric" column. Splitting it into `Metric IPv4` and `Metric IPv6` is the next visible step after Windows write support.
-- **Unavailable adapters section.** Fold a separate "Unavailable for editing (N)" collapsible section under the main table with reasons, per the product plan.
+- **Unavailable adapters section.** A separate "Unavailable for editing (N)" collapsible section under the main table with reasons, per the product plan.
 - **CLI reorder / update commands.** The `WindowsConnectionOrderCLI` executable currently exposes `adapters list`. Add `adapters reorder` and `adapters update-metric` once Windows write support is in place.
 - **Self-contained release.** Ship a self-contained EXE (or an MSIX) so end-users do not need to install Windows App Runtime manually.
-- **Unit tests for `LocalizablesProvider` and the new view models.** Lock in the contract of `update(to:)` and the split `systemError` / `metricFieldError` semantics.
+- **Unit tests for the new view models.** Lock in the contract of the split system / field error semantics and the localization provider.
 
 ## Command-line mode
 
