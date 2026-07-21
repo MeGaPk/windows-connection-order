@@ -5,43 +5,46 @@ import UIUtils
 
 public struct MainScreen: View {
     @State private var viewModel: MainViewModel
-    private let fallbackLocalizables: Localizables
+    private let localizablesProvider: LocalizablesProvider
 
     public init(
         viewModel: MainViewModel,
-        localizables: Localizables
+        localizablesProvider: LocalizablesProvider
     ) {
         _viewModel = State(wrappedValue: viewModel)
-        fallbackLocalizables = localizables
+        self.localizablesProvider = localizablesProvider
     }
 
     public var body: some View {
-        if let colorScheme {
-            content
-                .colorScheme(colorScheme)
-                .preferredColorScheme(colorScheme)
+        Group {
+            if let colorScheme {
+                content
+                    .colorScheme(colorScheme)
+                    .preferredColorScheme(colorScheme)
+            }
+            else {
+                content
+            }
         }
-        else {
-            content
-        }
+        .environment(\.localizablesProvider, localizablesProvider)
     }
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             screenHeader
             metricDescription
-            AdaptersTable(viewModel: viewModel, localizables: localizables)
+            AdaptersTable(viewModel: viewModel)
             adapterActions
             selectionStatus
             errorStatus
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(UIColors.pageBackground)
+        .background(UIColors.Surface.page)
     }
 
     private var screenHeader: some View {
-        HStack {
+        HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(localizables.main.appTitle).emphasized()
                 Text(localizables.main.appSubtitle)
@@ -49,7 +52,13 @@ public struct MainScreen: View {
 
             Spacer()
 
-            Button(localizables.main.actionSettings) { viewModel.showSettings() }
+            if viewModel.isRefreshing {
+                HeaderProgressDot()
+            }
+
+            Button(localizables.main.actionSettings) {
+                viewModel.showSettings()
+            }
         }
     }
 
@@ -66,11 +75,21 @@ public struct MainScreen: View {
                 viewModel.moveSelectedAdapter(by: -1)
             }
             .disabled(viewModel.selectedAdapter == nil)
+            .foregroundColor(
+                viewModel.selectedAdapter == nil
+                    ? UIColors.Text.disabled
+                    : UIColors.Accent.primary
+            )
 
             Button(localizables.main.actionMoveDown) {
                 viewModel.moveSelectedAdapter(by: 1)
             }
             .disabled(viewModel.selectedAdapter == nil)
+            .foregroundColor(
+                viewModel.selectedAdapter == nil
+                    ? UIColors.Text.disabled
+                    : UIColors.Accent.primary
+            )
         }
     }
 
@@ -83,26 +102,18 @@ public struct MainScreen: View {
 
     @ViewBuilder
     private var errorStatus: some View {
-        if let errorMessage = viewModel.errorMessage {
-            HStack(alignment: .top, spacing: 8) {
-                Text(errorMessage)
-                    .foregroundColor(UIColors.errorForeground)
-                Spacer()
-                Button(localizables.main.actionDismiss) {
-                    viewModel.clearError()
-                }
+        if let errorMessage = viewModel.systemError {
+            ErrorBanner(
+                message: errorMessage,
+                dismissTitle: localizables.main.actionDismiss
+            ) {
+                viewModel.clearSystemError()
             }
-            .padding(8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(UIColors.errorBackground)
         }
     }
 
     private var localizables: Localizables {
-        guard let selectedLocale = viewModel.localeSettings?.selectedLocale else {
-            return fallbackLocalizables
-        }
-        return Localizables(locale: selectedLocale)
+        localizablesProvider.current
     }
 
     private var colorScheme: ColorScheme? {
@@ -113,21 +124,6 @@ public struct MainScreen: View {
                 .light
             case .dark:
                 .dark
-        }
-    }
-
-    private func localizedMessage(for error: NetworkAdapterError) -> String {
-        switch error {
-            case .permissionDenied:
-                localizables.main.errorPermissionDenied
-            case .adapterNotFound:
-                localizables.main.errorAdapterNotFound
-            case .invalidMetricValue:
-                localizables.main.errorInvalidMetricValue
-            case .systemError(let code, let message):
-                localizables.main.errorSystemError(Int(code), message)
-            case .unknown:
-                localizables.main.errorUnknown
         }
     }
 }

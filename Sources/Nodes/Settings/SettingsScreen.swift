@@ -5,25 +5,28 @@ import UIUtils
 
 public struct SettingsScreen: View {
     @State private var viewModel: SettingsViewModel
-    private let fallbackLocalizables: Localizables
+    private let localizablesProvider: LocalizablesProvider
 
     public init(
         viewModel: SettingsViewModel,
-        localizables: Localizables
+        localizablesProvider: LocalizablesProvider
     ) {
         _viewModel = State(wrappedValue: viewModel)
-        fallbackLocalizables = localizables
+        self.localizablesProvider = localizablesProvider
     }
 
     public var body: some View {
-        if let colorScheme {
-            content
-                .colorScheme(colorScheme)
-                .preferredColorScheme(colorScheme)
+        Group {
+            if let colorScheme {
+                content
+                    .colorScheme(colorScheme)
+                    .preferredColorScheme(colorScheme)
+            }
+            else {
+                content
+            }
         }
-        else {
-            content
-        }
+        .environment(\.localizablesProvider, localizablesProvider)
     }
 
     private var content: some View {
@@ -34,7 +37,7 @@ public struct SettingsScreen: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(UIColors.pageBackground)
+        .background(UIColors.Surface.page)
     }
 
     private var screenHeader: some View {
@@ -68,10 +71,7 @@ public struct SettingsScreen: View {
     }
 
     private var localizables: Localizables {
-        guard let selectedLocale = viewModel.localeSettings?.selectedLocale else {
-            return fallbackLocalizables
-        }
-        return Localizables(locale: selectedLocale)
+        localizablesProvider.current
     }
 
     private var colorScheme: ColorScheme? {

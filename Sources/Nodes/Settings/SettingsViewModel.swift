@@ -1,18 +1,25 @@
 import Domain
+import Localization
 import SwiftCrossUI
+import UIUtils
 
 @MainActor
 @ObservableObject
 public final class SettingsViewModel {
     private let dependencies: SettingsDependencies
+    private weak var localizablesProvider: LocalizablesProvider?
     private var localesStreamTask: Task<Void, Never>?
     private var colorSchemeStreamTask: Task<Void, Never>?
 
     public var appColorScheme: AppColorScheme = .automatic
     public var localeSettings: LocaleSettings?
 
-    public init(dependencies: SettingsDependencies) {
+    public init(
+        dependencies: SettingsDependencies,
+        localizablesProvider: LocalizablesProvider
+    ) {
         self.dependencies = dependencies
+        self.localizablesProvider = localizablesProvider
         startLocalesStream()
         startColorSchemeStream()
     }
@@ -51,6 +58,9 @@ public final class SettingsViewModel {
                 }
 
                 self?.localeSettings = localeSettings
+                if let provider = self?.localizablesProvider {
+                    provider.update(to: localeSettings.selectedLocale)
+                }
             }
         }
     }

@@ -5,12 +5,14 @@ import Localization
 import Nodes
 import RepositoryImpl
 import SwiftCrossUI
+import UIUtils
 import UseCaseImpl
 
 @main
 @MainActor
 struct WindowsConnectionOrderApp: App {
     @State private var navigationPath = NavigationPath()
+    @State private var localizablesProvider: LocalizablesProvider
     private var mainDependencies: MainDependencies!
     private var settingsDependencies: SettingsDependencies!
 
@@ -18,6 +20,9 @@ struct WindowsConnectionOrderApp: App {
         let adaptersUseCases = AppComposition.makeSystemAdaptersUseCases()
         let localizationRepository = LocalizationRepositoryImpl()
         let colorSchemeRepository = ColorSchemeRepositoryImpl()
+        let initialLocalizables = Localizables(locale: .systemDefault)
+        let provider = LocalizablesProvider(initial: initialLocalizables)
+        _localizablesProvider = State(wrappedValue: provider)
         mainDependencies = MainDependencies(
             streamAdaptersUseCase: adaptersUseCases.stream,
             refreshAdaptersUseCase: adaptersUseCases.refresh,
@@ -40,8 +45,11 @@ struct WindowsConnectionOrderApp: App {
         WindowGroup("Windows Connection Order") {
             NavigationStack(path: $navigationPath) {
                 MainScreen(
-                    viewModel: MainViewModel(dependencies: mainDependencies),
-                    localizables: Localizables(locale: .systemDefault)
+                    viewModel: MainViewModel(
+                        dependencies: mainDependencies,
+                        localizablesProvider: localizablesProvider
+                    ),
+                    localizablesProvider: localizablesProvider
                 )
             }
             .navigationDestination(for: AppNavigationDestination.self) { destination in
@@ -55,9 +63,11 @@ struct WindowsConnectionOrderApp: App {
 
     private func settingsScreen() -> some View {
         SettingsScreen(
-            viewModel: SettingsViewModel(dependencies: settingsDependencies),
-            localizables: Localizables(locale: .systemDefault)
+            viewModel: SettingsViewModel(
+                dependencies: settingsDependencies,
+                localizablesProvider: localizablesProvider
+            ),
+            localizablesProvider: localizablesProvider
         )
     }
-
 }

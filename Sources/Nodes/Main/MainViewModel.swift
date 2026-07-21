@@ -1,11 +1,13 @@
 import Domain
 import Localization
 import SwiftCrossUI
+import UIUtils
 
 @MainActor
 @ObservableObject
 public final class MainViewModel {
     private let dependencies: MainDependencies
+    private weak var localizablesProvider: LocalizablesProvider?
     private var adaptersStreamTask: Task<Void, Never>?
     private var localesStreamTask: Task<Void, Never>?
     private var colorSchemeStreamTask: Task<Void, Never>?
@@ -15,13 +17,22 @@ public final class MainViewModel {
     public var metricInput = ""
     public var localeSettings: LocaleSettings?
     public var appColorScheme: AppColorScheme = .automatic
+    public var isRefreshing: Bool = false
 
-    /// Last user-facing error, surfaced as a status line in the UI.
-    /// `nil` means "no error to show".
-    public var errorMessage: String?
+    /// A system-level error (permission/system/unknown) that needs a global
+    /// banner. `nil` means "no system error to show".
+    public var systemError: String?
 
-    public init(dependencies: MainDependencies) {
+    /// An inline field error (e.g. invalid metric value) attached to the
+    /// metric editor. `nil` means "no field error to show".
+    public var metricFieldError: String?
+
+    public init(
+        dependencies: MainDependencies,
+        localizablesProvider: LocalizablesProvider
+    ) {
         self.dependencies = dependencies
+        self.localizablesProvider = localizablesProvider
         startAdaptersStream()
         startLocalesStream()
         startColorSchemeStream()
@@ -48,7 +59,8 @@ public final class MainViewModel {
         }
         selectedAdapter = adapter
         metricInput = String(adapter.metric)
-        errorMessage = nil
+        metricFieldError = nil
+        systemError = nil
     }
 
     public func moveSelectedAdapter(by offset: Int) {
@@ -64,9 +76,9 @@ public final class MainViewModel {
                     selectedAdapterID: adapterID,
                     offset: offset
                 )
-                self?.errorMessage = nil
+                self?.systemError = nil
             } catch let error as NetworkAdapterError {
-                self?.errorMessage = self?.localizedMessage(for: error)
+                self?.handleSystemError(error)
             }
         }
     }
@@ -76,10 +88,11 @@ public final class MainViewModel {
             return
         }
         guard let metric = Int(metricInput), metric >= 0 else {
-            errorMessage = localizedMessage(for: .invalidMetricValue(value: -1))
+            metricFieldError = localizedMessage(for: .invalidMetricValue(value: -1))
             return
         }
 
+        metricFieldError = nil
         let updateAdapterMetricUseCase = dependencies.updateAdapterMetricUseCase
         let adapterID = selectedAdapter.id
         Task { [weak self] in
@@ -88,15 +101,26 @@ public final class MainViewModel {
                     adapterID: adapterID,
                     metric: metric
                 )
-                self?.errorMessage = nil
+                self?.systemError = nil
             } catch let error as NetworkAdapterError {
-                self?.errorMessage = self?.localizedMessage(for: error)
+                self?.handleSystemError(error)
             }
         }
     }
 
-    public func clearError() {
-        errorMessage = nil
+    public func clearSystemError() {
+        systemError = nil
+    }
+
+    private func handleSystemError(_ error: NetworkAdapterError) {
+        // Field-level errors never reach here: invalidMetricValue is caught
+        // in `applyMetric` before a use case is called.
+        switch error {
+            case .invalidMetricValue:
+                metricFieldError = localizedMessage(for: error)
+            default:
+                systemError = localizedMessage(for: error)
+        }
     }
 
     private func localizedMessage(for error: NetworkAdapterError) -> String {
@@ -116,10 +140,13 @@ public final class MainViewModel {
     }
 
     private func currentLocalizables() -> Localizables {
-        guard let selectedLocale = localeSettings?.selectedLocale else {
-            return Localizables(locale: .systemDefault)
+        if let current = localizablesProvider?.current {
+            return current
         }
-        return Localizables(locale: selectedLocale)
+        if let selectedLocale = localeSettings?.selectedLocale {
+            return Localizables(locale: selectedLocale)
+        }
+        return Localizables(locale: .systemDefault)
     }
 
     private func startAdaptersStream() {
@@ -146,11 +173,14 @@ public final class MainViewModel {
 
     private func refreshAdapters() {
         let refreshAdaptersUseCase = dependencies.refreshAdaptersUseCase
+        isRefreshing = true
         Task { [weak self] in
+            defer { self?.isRefreshing = false }
             do {
                 try await refreshAdaptersUseCase.execute()
+                self?.systemError = nil
             } catch let error as NetworkAdapterError {
-                self?.errorMessage = self?.localizedMessage(for: error)
+                self?.handleSystemError(error)
             }
         }
     }
@@ -166,6 +196,9 @@ public final class MainViewModel {
                 }
 
                 self?.localeSettings = localeSettings
+                if let provider = self?.localizablesProvider {
+                    provider.update(to: localeSettings.selectedLocale)
+                }
             }
         }
     }
