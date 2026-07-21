@@ -1,0 +1,16 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Generated IDE files
+.vscode/
+.sourcekit-lsp/
+
+# Local build artifacts
+release_build/
+
+# Local development tooling
+.tooling/
+
+# Generated source code
+Sources/Localization/Generated/

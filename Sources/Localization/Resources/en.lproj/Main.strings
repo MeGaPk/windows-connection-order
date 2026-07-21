@@ -1,0 +1,41 @@
+//
+//  Main.strings
+//  WindowsConnectionOrder
+//
+//  Localized strings for the main screen.
+//
+
+"app.title" = "Windows Connection Order";
+"app.subtitle" = "Windows network adapters are read. Changing network settings is not yet available.";
+"language.label" = "Language:";
+"language.english" = "English";
+"language.russian" = "Russian";
+"language.estonian" = "Estonian";
+"metric.title" = "Connection Metric";
+"metric.help" = "Windows prefers a lower metric. Press Enter after changing to apply and sort the list.";
+"column.order" = "#";
+"column.adapter" = "Adapter";
+"column.ipv4" = "Local IPv4";
+"column.ipv6" = "Local IPv6";
+"column.metric" = "Metric";
+"action.select" = "Select";
+"action.selected" = "Selected";
+"action.moveUp" = "Move Selected Up";
+"action.moveDown" = "Move Selected Down";
+"action.settings" = "Settings";
+"action.back" = "Back";
+"action.dismiss" = "Dismiss";
+"settings.title" = "Settings";
+"settings.themeLabel" = "Appearance:";
+"colorScheme.automatic" = "Auto";
+"colorScheme.light" = "Light";
+"colorScheme.dark" = "Dark";
+"status.nothingSelected" = "Select an adapter to change its position.";
+"status.selected" = "%@ selected.";
+"status.metricChanged" = "Metric for %@ changed to %d.";
+"adapter.metrics" = "IPv4: %d, IPv6: %d";
+"error.permissionDenied" = "Administrator privileges are required to change adapter settings.";
+"error.adapterNotFound" = "The selected adapter is no longer available.";
+"error.invalidMetricValue" = "Invalid metric value. Please enter a non-negative integer.";
+"error.systemError" = "System error (code %d): %@";
+"error.unknown" = "An unknown error occurred.";
