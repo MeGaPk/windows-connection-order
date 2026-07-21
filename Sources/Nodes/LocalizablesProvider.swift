@@ -20,8 +20,8 @@ import SwiftCrossUI
 /// isolation; in practice all reads and writes happen on the main actor
 /// (the only place SwiftCrossUI runs view code), so a runtime race cannot
 /// occur.
+@MainActor
 @ObservableObject
-@unchecked Sendable
 public final class LocalizablesProvider {
     public var current: Localizables
 

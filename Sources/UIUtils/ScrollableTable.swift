@@ -24,7 +24,9 @@ public struct ScrollableTable<Content: View>: View {
     public var body: some View {
         GeometryReader { proxy in
             ScrollView {
-                content
+                HStack(alignment: .top, spacing: 0) {
+                    content
+                }
                     .environment(\.columnLayout, ColumnLayoutContext(
                         availableWidth: proxy.size.width,
                         totalWeight: totalWeight
