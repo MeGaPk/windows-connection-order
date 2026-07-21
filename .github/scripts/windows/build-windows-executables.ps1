@@ -17,14 +17,16 @@ swift --version
 
 swift package resolve
 
-foreach ($product in ($Products -split "," | ForEach-Object { $_.Trim() }) {
+$ProductList = $Products -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+
+foreach ($product in $ProductList) {
     Write-Host "Building product: $product ($Configuration)"
     swift build -c $Configuration --product $product
 }
 
 New-Item -ItemType Directory -Force -Path $ArtifactsDir | Out-Null
 
-foreach ($product in ($Products -split "," | ForEach-Object { $_.Trim() })) {
+foreach ($product in $ProductList) {
     $exeName = "$product.exe"
     $candidate = Get-ChildItem -Path ".build" -Recurse -Filter $exeName `
         | Where-Object { $_.FullName -match "\\$exeName$" } `
