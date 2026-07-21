@@ -43,8 +43,10 @@ jobs:
       - name: Setup Swift (Windows)
         uses: compnerd/gha-setup-swift@main
         with:
+          source: swift.org
           swift-version: ${{ env.SWIFT_VERSION }}
           swift-build: ${{ env.SWIFT_BUILD }}
+          cache: true
 
       - name: Restore/build cache
         uses: actions/cache@v4
