@@ -61,7 +61,7 @@ jobs:
             -Workspace $env:GITHUB_WORKSPACE `
             -ArtifactsDir $env:ARTIFACTS_DIR `
             -Configuration release `
-            -Products @("WindowsConnectionOrder", "WindowsConnectionOrderCLI")
+            -Products "WindowsConnectionOrder,WindowsConnectionOrderCLI"
 
       - name: Upload Windows app and CLI executables
         uses: actions/upload-artifact@v4

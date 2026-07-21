@@ -46,7 +46,7 @@ jobs:
             -Workspace $env:GITHUB_WORKSPACE `
             -ArtifactsDir $env:ARTIFACTS_DIR `
             -Configuration release `
-            -Products @("WindowsConnectionOrder", "WindowsConnectionOrderCLI")
+            -Products "WindowsConnectionOrder,WindowsConnectionOrderCLI"
 
       - name: Prepare release archive
         id: prepare_release
