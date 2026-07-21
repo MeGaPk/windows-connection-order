@@ -28,17 +28,19 @@ jobs:
     permissions:
       contents: read
     env:
-      SWIFT_VERSION: "6.3"
+      SWIFT_VERSION: "swift-6.3-release"
+      SWIFT_BUILD: "6.3-RELEASE"
       ARTIFACTS_DIR: "artifacts"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup Swift
-        uses: swift-actions/setup-swift@v2
+      - name: Setup Swift (Windows)
+        uses: compnerd/gha-setup-swift@main
         with:
           swift-version: ${{ env.SWIFT_VERSION }}
+          swift-build: ${{ env.SWIFT_BUILD }}
 
       - name: Restore/build cache
         uses: actions/cache@v4
