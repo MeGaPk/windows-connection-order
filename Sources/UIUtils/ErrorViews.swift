@@ -6,12 +6,12 @@ import SwiftCrossUI
 public struct ErrorBanner: View {
     private let message: String
     private let dismissTitle: String
-    private let onDismiss: () -> Void
+    private let onDismiss: @MainActor @Sendable () -> Void
 
     public init(
         message: String,
         dismissTitle: String,
-        onDismiss: @escaping () -> Void
+        onDismiss: @escaping @MainActor @Sendable () -> Void
     ) {
         self.message = message
         self.dismissTitle = dismissTitle

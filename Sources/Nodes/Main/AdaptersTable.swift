@@ -126,7 +126,13 @@ struct AdaptersTable: View {
 
         if isSelected {
             VStack(alignment: .leading, spacing: 2) {
-                TextField(localizables.main.columnMetric, text: $viewModel.metricInput)
+                TextField(
+                    localizables.main.columnMetric,
+                    text: Binding(
+                        get: { viewModel.metricInput },
+                        set: { viewModel.metricInput = $0 }
+                    )
+                )
                     .onSubmit { viewModel.applyMetric() }
                 if let message = viewModel.metricFieldError {
                     FieldHint(message: message)
