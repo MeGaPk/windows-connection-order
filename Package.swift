@@ -95,6 +95,10 @@ let package = Package(
                 "Domain",
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
+        ),
+        .testTarget(
+            name: "WindowsConnectionOrderTests",
+            dependencies: []
         )
     ]
 )
