@@ -1,3 +1,4 @@
+#if os(Windows)
 import Domain
 import Gateway
 import WinSDK
@@ -151,3 +152,4 @@ public struct WindowsAdaptersGatewayImpl: AdaptersGateway {
         return String(decoding: buffer.prefix { $0 != 0 }, as: UTF16.self)
     }
 }
+#endif

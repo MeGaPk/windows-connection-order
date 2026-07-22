@@ -63,7 +63,11 @@ let package = Package(
         .target(
             name: "UIUtils",
             dependencies: [
-                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+                .product(
+                    name: "SwiftCrossUI",
+                    package: "swift-cross-ui",
+                    condition: .when(platforms: [.windows])
+                )
             ]
         ),
         .target(
@@ -73,7 +77,11 @@ let package = Package(
                 "Localization",
                 "UIUtils",
                 "UseCase",
-                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+                .product(
+                    name: "SwiftCrossUI",
+                    package: "swift-cross-ui",
+                    condition: .when(platforms: [.windows])
+                )
             ]
         ),
         .executableTarget(
@@ -84,8 +92,16 @@ let package = Package(
                 "Nodes",
                 "RepositoryImpl",
                 "UseCaseImpl",
-                .product(name: "DefaultBackend", package: "swift-cross-ui"),
-                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
+                .product(
+                    name: "DefaultBackend",
+                    package: "swift-cross-ui",
+                    condition: .when(platforms: [.windows])
+                ),
+                .product(
+                    name: "SwiftCrossUI",
+                    package: "swift-cross-ui",
+                    condition: .when(platforms: [.windows])
+                )
             ]
         ),
         .executableTarget(
