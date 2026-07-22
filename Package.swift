@@ -1,92 +1,92 @@
 // swift-tools-version: 6.3
 
 import PackageDescription
+import Foundation
 
-var packageDependencies: [Package.Dependency] = [
-    .package(
-        url: "https://github.com/apple/swift-argument-parser",
-        exact: "1.8.2"
+let lightweightTests = ProcessInfo.processInfo.environment[
+    "WINDOWS_CONNECTION_ORDER_LIGHTWEIGHT_TESTS"
+] == "1"
+
+var packageDependencies: [Package.Dependency] = []
+var products: [Product] = []
+var targets: [Target] = [
+    .target(name: "Domain"),
+    .testTarget(
+        name: "WindowsConnectionOrderTests",
+        dependencies: ["Domain"]
     )
 ]
 
 #if os(Windows)
-packageDependencies.append(
+if !lightweightTests {
+packageDependencies = [
+    .package(
+        url: "https://github.com/apple/swift-argument-parser",
+        exact: "1.8.2"
+    ),
     .package(
         url: "https://github.com/moreSwift/swift-cross-ui",
         exact: "0.8.0"
     )
-)
-#endif
+]
 
-var products: [Product] = [
+products = [
+    .executable(
+        name: "WindowsConnectionOrder",
+        targets: ["EntryPoint"]
+    ),
     .executable(
         name: "WindowsConnectionOrderCLI",
         targets: ["CommandLine"]
     )
 ]
 
-var appCompositionDependencies: [Target.Dependency] = [
-    "Gateway",
-    "GatewayImpl",
-    "RepositoryImpl",
-    "UseCase",
-    "UseCaseImpl"
-]
-
-#if os(Windows)
-appCompositionDependencies.append("WindowsNetworkGatewayImpl")
-products.append(
-    .executable(
-        name: "WindowsConnectionOrder",
-        targets: ["EntryPoint"]
-    )
-)
-#endif
-
-var targets: [Target] = [
-    .target(name: "Domain"),
-    .target(name: "Utils"),
-    .target(name: "Gateway", dependencies: ["Domain"]),
-    .target(
-        name: "GatewayImpl",
-        dependencies: ["Domain", "Gateway"]
-    ),
-    .target(
-        name: "WindowsNetworkGatewayImpl",
-        dependencies: ["Domain", "Gateway"]
-    ),
-    .target(name: "Repository", dependencies: ["Domain"]),
-    .target(
-        name: "RepositoryImpl",
-        dependencies: ["Domain", "Gateway", "Repository", "Utils"]
-    ),
-    .target(name: "UseCase", dependencies: ["Domain"]),
-    .target(
-        name: "UseCaseImpl",
-        dependencies: ["Domain", "Repository", "UseCase"]
-    ),
-    .target(
-        name: "AppComposition",
-        dependencies: appCompositionDependencies
-    ),
-    .target(
-        name: "Localization",
-        dependencies: ["Domain"],
-        resources: [.process("Resources")]
-    ),
-    .executableTarget(
-        name: "CommandLine",
-        dependencies: [
-            "AppComposition",
-            "Domain",
-            .product(name: "ArgumentParser", package: "swift-argument-parser")
-        ]
-    )
-]
-
-#if os(Windows)
 targets.append(
     contentsOf: [
+        .target(name: "Utils"),
+        .target(name: "Gateway", dependencies: ["Domain"]),
+        .target(
+            name: "GatewayImpl",
+            dependencies: ["Domain", "Gateway"]
+        ),
+        .target(
+            name: "WindowsNetworkGatewayImpl",
+            dependencies: ["Domain", "Gateway"]
+        ),
+        .target(name: "Repository", dependencies: ["Domain"]),
+        .target(
+            name: "RepositoryImpl",
+            dependencies: ["Domain", "Gateway", "Repository", "Utils"]
+        ),
+        .target(name: "UseCase", dependencies: ["Domain"]),
+        .target(
+            name: "UseCaseImpl",
+            dependencies: ["Domain", "Repository", "UseCase"]
+        ),
+        .target(
+            name: "AppComposition",
+            dependencies: [
+                "Gateway",
+                "GatewayImpl",
+                "RepositoryImpl",
+                "UseCase",
+                "UseCaseImpl",
+                "WindowsNetworkGatewayImpl"
+            ]
+        ),
+        .target(
+            name: "Localization",
+            dependencies: ["Domain"],
+            resources: [.process("Resources")]
+        ),
+        .executableTarget(
+            name: "CommandLine",
+            dependencies: [
+                "AppComposition",
+                "Domain",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
         .target(
             name: "UIUtils",
             dependencies: [
@@ -117,14 +117,8 @@ targets.append(
         )
     ]
 )
+}
 #endif
-
-targets.append(
-    .testTarget(
-        name: "WindowsConnectionOrderTests",
-        dependencies: []
-    )
-)
 
 let package = Package(
     name: "WindowsConnectionOrder",

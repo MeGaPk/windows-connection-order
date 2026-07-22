@@ -10,6 +10,7 @@ param(
 )
 
 Set-Location -LiteralPath $Workspace
+$ErrorActionPreference = "Stop"
 
 $appExe = Join-Path $ArtifactsDir "WindowsConnectionOrder.exe"
 $cliExe = Join-Path $ArtifactsDir "WindowsConnectionOrderCLI.exe"
