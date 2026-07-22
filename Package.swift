@@ -25,7 +25,7 @@ var products: [Product] = [
     )
 ]
 
-var appCompositionDependencies = [
+var appCompositionDependencies: [Target.Dependency] = [
     "Gateway",
     "GatewayImpl",
     "RepositoryImpl",
