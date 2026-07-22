@@ -22,7 +22,7 @@ jobs:
     permissions:
       contents: read
     env:
-      SWIFT_VERSION: "6.3"
+      SWIFT_VERSION: "6.3.3"
 
     steps:
       - name: Checkout
