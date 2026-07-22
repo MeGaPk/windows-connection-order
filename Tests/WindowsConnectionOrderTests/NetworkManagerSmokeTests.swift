@@ -1,15 +1,18 @@
-import XCTest
+import Testing
 
-final class NetworkManagerSmokeTests: XCTestCase {
+@Suite
+struct NetworkManagerSmokeTests {
+    @Test
     func testUppercasingString() {
-        XCTAssertEqual("swift pipeline".uppercased(), "SWIFT PIPELINE")
+        #expect("swift pipeline".uppercased() == "SWIFT PIPELINE")
     }
 
+    @Test
     func testSetContainsElementAfterInsert() {
         var seen = Set<Int>()
         seen.insert(1)
 
-        XCTAssertTrue(seen.contains(1))
-        XCTAssertEqual(seen.count, 1)
+        #expect(seen.contains(1))
+        #expect(seen.count == 1)
     }
 }
