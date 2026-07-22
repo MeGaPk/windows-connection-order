@@ -10,25 +10,6 @@ on:
       - ".github/scripts/windows/build-windows-executables.ps1"
       - "Package.swift"
       - "Package.resolved"
-  push:
-    branches:
-      - main
-    paths:
-      - "**/*.swift"
-      - ".github/workflows/windows-exe-ci.yml"
-      - ".github/scripts/windows/build-windows-executables.ps1"
-      - "Package.swift"
-      - "Package.resolved"
-  workflow_dispatch:
-    inputs:
-      run_type:
-        description: "Run type"
-        type: choice
-        required: true
-        default: "build"
-        options:
-          - "build"
-          - "test"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -36,14 +17,12 @@ concurrency:
 
 jobs:
   swift-tests:
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_type == 'test' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
     env:
       SWIFT_VERSION: "swift-6.3"
-      SWIFT_BUILD: "6.3-RELEASE"
 
     steps:
       - name: Checkout
@@ -69,54 +48,3 @@ jobs:
       - name: Run tests
         run: |
           swift test
-
-  build-windows-exe:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_type == 'build' }}
-    runs-on: windows-latest
-    timeout-minutes: 60
-    permissions:
-      contents: read
-    env:
-      SWIFT_VERSION: "swift-6.3-release"
-      SWIFT_BUILD: "6.3-RELEASE"
-      ARTIFACTS_DIR: "artifacts"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup Swift (Windows)
-        uses: compnerd/gha-setup-swift@main
-        with:
-          source: swift.org
-          swift-version: ${{ env.SWIFT_VERSION }}
-          swift-build: ${{ env.SWIFT_BUILD }}
-          cache: true
-
-      - name: Restore/build cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .build
-            ${{ env.LOCALAPPDATA }}\swiftpm\cache
-            ${{ env.LOCALAPPDATA }}\swiftpm\repositories
-          key: ${{ runner.os }}-swift-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.swift', 'Package.resolved') }}-build
-          restore-keys: |
-            ${{ runner.os }}-swift-${{ env.SWIFT_VERSION }}-
-            ${{ runner.os }}-swift-
-
-      - name: Build GUI and CLI apps
-        shell: pwsh
-        run: |
-          pwsh .github/scripts/windows/build-windows-executables.ps1 `
-            -Workspace $env:GITHUB_WORKSPACE `
-            -ArtifactsDir $env:ARTIFACTS_DIR `
-            -Configuration release `
-            -Products "WindowsConnectionOrder,WindowsConnectionOrderCLI"
-
-      - name: Upload Windows app and CLI executables
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-executables
-          path: artifacts/*.exe
-          retention-days: 7
