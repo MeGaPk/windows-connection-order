@@ -1,12 +1,12 @@
-#if os(Windows)
+#if canImport(WinSDK)
 import Domain
 import Gateway
 import WinSDK
 
-public struct WindowsAdaptersGatewayImpl: AdaptersGateway {
-    public init() {}
+package struct WindowsAdaptersGatewayImpl: AdaptersGateway {
+    package init() {}
 
-    public func fetchAdapters() async throws(NetworkAdapterError) -> [NetworkAdapter] {
+    package func fetchAdapters() async throws(NetworkAdapterError) -> [NetworkAdapter] {
         var winsockData = WSADATA()
         let wsaStartupResult = WSAStartup(WORD(0x0202), &winsockData)
         guard wsaStartupResult == 0 else {

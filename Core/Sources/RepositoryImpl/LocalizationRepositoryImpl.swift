@@ -3,11 +3,11 @@ import Domain
 import Repository
 import Utils
 
-public actor LocalizationRepositoryImpl: LocalizationRepository {
+package actor LocalizationRepositoryImpl: LocalizationRepository {
     private static let selectedLocaleDefaultsKey = "selectedLocale"
     private let settings: AsyncCurrentValue<LocaleSettings>
 
-    public init(
+    package init(
         availableLocales: [AppLocale] = AppLocale.allCases,
         selectedLocale: AppLocale = .systemDefault
     ) {
@@ -25,11 +25,11 @@ public actor LocalizationRepositoryImpl: LocalizationRepository {
         )
     }
 
-    public func streamLocales() async -> AsyncStream<LocaleSettings> {
+    package func streamLocales() async -> AsyncStream<LocaleSettings> {
         await settings.stream()
     }
 
-    public func setLocale(_ locale: AppLocale) async {
+    package func setLocale(_ locale: AppLocale) async {
         let currentSettings = await settings.current()
         guard currentSettings.availableLocales.contains(locale) else {
             return

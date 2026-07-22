@@ -1,6 +1,6 @@
 import Domain
 
-public protocol AdaptersRepository: Sendable {
+package protocol AdaptersRepository: Sendable {
     func streamAdapters() async -> AsyncStream<[NetworkAdapter]>
     func refreshAdapters() async throws(NetworkAdapterError)
     func reorderAdapters(

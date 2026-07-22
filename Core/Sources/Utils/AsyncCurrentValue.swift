@@ -1,18 +1,18 @@
 import Foundation
 
-public actor AsyncCurrentValue<Value: Sendable> {
+package actor AsyncCurrentValue<Value: Sendable> {
     private var value: Value
     private var continuations: [UUID: AsyncStream<Value>.Continuation] = [:]
 
-    public init(_ initialValue: Value) {
+    package init(_ initialValue: Value) {
         value = initialValue
     }
 
-    public func current() -> Value {
+    package func current() -> Value {
         value
     }
 
-    public func update(_ newValue: Value) {
+    package func update(_ newValue: Value) {
         value = newValue
 
         for continuation in continuations.values {
@@ -20,7 +20,7 @@ public actor AsyncCurrentValue<Value: Sendable> {
         }
     }
 
-    public func stream() -> AsyncStream<Value> {
+    package func stream() -> AsyncStream<Value> {
         let observerID = UUID()
 
         return AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in

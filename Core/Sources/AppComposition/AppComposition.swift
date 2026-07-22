@@ -3,20 +3,20 @@ import GatewayImpl
 import RepositoryImpl
 import UseCaseImpl
 
-#if os(Windows)
+#if canImport(WindowsNetworkGatewayImpl)
 import WindowsNetworkGatewayImpl
 #endif
 
 public enum AppComposition {
     public static func makeSystemAdaptersUseCases() -> AdaptersUseCases {
-        #if os(Windows)
+        #if canImport(WindowsNetworkGatewayImpl)
         makeAdaptersUseCases(gateway: WindowsNetworkGatewayImpl.WindowsAdaptersGatewayImpl())
         #else
         makeAdaptersUseCases(gateway: MockAdaptersGateway())
         #endif
     }
 
-    public static func makeAdaptersUseCases(
+    package static func makeAdaptersUseCases(
         gateway: any AdaptersGateway
     ) -> AdaptersUseCases {
         let repository = AdaptersRepositoryImpl(gateway: gateway)
@@ -26,6 +26,24 @@ public enum AppComposition {
             refresh: RefreshAdaptersUseCaseImpl(repository: repository),
             reorder: ReorderAdaptersUseCaseImpl(repository: repository),
             updateMetric: UpdateAdapterMetricUseCaseImpl(repository: repository)
+        )
+    }
+
+    public static func makeLocalizationUseCases() -> LocalizationUseCases {
+        let repository = LocalizationRepositoryImpl()
+
+        return LocalizationUseCases(
+            stream: StreamLocalesUseCaseImpl(repository: repository),
+            set: SetLocaleUseCaseImpl(repository: repository)
+        )
+    }
+
+    public static func makeColorSchemeUseCases() -> ColorSchemeUseCases {
+        let repository = ColorSchemeRepositoryImpl()
+
+        return ColorSchemeUseCases(
+            stream: StreamColorSchemeUseCaseImpl(repository: repository),
+            set: SetColorSchemeUseCaseImpl(repository: repository)
         )
     }
 }

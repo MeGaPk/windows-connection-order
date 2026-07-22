@@ -3,24 +3,24 @@ import Gateway
 import Repository
 import Utils
 
-public actor AdaptersRepositoryImpl: AdaptersRepository {
+package actor AdaptersRepositoryImpl: AdaptersRepository {
     private let gateway: any AdaptersGateway
     private let adapters = AsyncCurrentValue<[NetworkAdapter]>([])
 
-    public init(gateway: any AdaptersGateway) {
+    package init(gateway: any AdaptersGateway) {
         self.gateway = gateway
     }
 
-    public func streamAdapters() async -> AsyncStream<[NetworkAdapter]> {
+    package func streamAdapters() async -> AsyncStream<[NetworkAdapter]> {
         await adapters.stream()
     }
 
-    public func refreshAdapters() async throws(NetworkAdapterError) {
+    package func refreshAdapters() async throws(NetworkAdapterError) {
         let fetchedAdapters = try await gateway.fetchAdapters()
         await adapters.update(fetchedAdapters)
     }
 
-    public func reorderAdapters(
+    package func reorderAdapters(
         selectedAdapterID: NetworkAdapter.ID,
         offset: Int
     ) async throws(NetworkAdapterError) -> Bool {
@@ -42,7 +42,7 @@ public actor AdaptersRepositoryImpl: AdaptersRepository {
         return true
     }
 
-    public func updateAdapterMetric(
+    package func updateAdapterMetric(
         adapterID: NetworkAdapter.ID,
         metric: Int
     ) async throws(NetworkAdapterError) {

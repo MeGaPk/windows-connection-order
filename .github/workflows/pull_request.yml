@@ -7,9 +7,8 @@ on:
     paths:
       - ".github/workflows/**"
       - "**/*.swift"
-      - ".github/scripts/windows/build-windows-executables.ps1"
-      - "Tests/**"
       - "Package.swift"
+      - "Core/Package.swift"
       - "Package.resolved"
 
 concurrency:
@@ -25,7 +24,6 @@ jobs:
     env:
       SWIFT_VERSION: "swift-6.3.3-release"
       SWIFT_BUILD: "6.3.3-RELEASE"
-      WINDOWS_CONNECTION_ORDER_LIGHTWEIGHT_TESTS: "1"
 
     steps:
       - name: Checkout
@@ -39,20 +37,6 @@ jobs:
           swift-build: ${{ env.SWIFT_BUILD }}
           cache: true
 
-      - name: Restore build cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .build/artifacts
-            .build/checkouts
-            .build/repositories
-            /tmp/swiftpm
-            ~/.swiftpm
-          key: ${{ runner.os }}-swift-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.swift', 'Package.resolved') }}-test
-          restore-keys: |
-            ${{ runner.os }}-swift-${{ env.SWIFT_VERSION }}-
-            ${{ runner.os }}-swift-
-
       - name: Run tests
         run: |
-          swift test
+          swift test --package-path Core

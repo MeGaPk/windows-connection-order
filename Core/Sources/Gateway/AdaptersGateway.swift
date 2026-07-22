@@ -1,5 +1,5 @@
 import Domain
 
-public protocol AdaptersGateway: Sendable {
+package protocol AdaptersGateway: Sendable {
     func fetchAdapters() async throws(NetworkAdapterError) -> [NetworkAdapter]
 }
