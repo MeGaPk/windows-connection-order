@@ -98,7 +98,16 @@ let package = Package(
         ),
         .testTarget(
             name: "WindowsConnectionOrderTests",
-            dependencies: []
+            dependencies: [
+                "Domain",
+                "Utils",
+                "Gateway",
+                "GatewayImpl",
+                "Repository",
+                "RepositoryImpl",
+                "UseCase",
+                "UseCaseImpl"
+            ]
         )
     ]
 )
