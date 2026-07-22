@@ -5,9 +5,10 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/**"
       - "**/*.swift"
-      - ".github/workflows/windows-exe-ci.yml"
       - ".github/scripts/windows/build-windows-executables.ps1"
+      - "Tests/**"
       - "Package.swift"
       - "Package.resolved"
 
