@@ -3,10 +3,7 @@ import DefaultBackend
 import Domain
 import Localization
 import Nodes
-import RepositoryImpl
 import SwiftCrossUI
-import UIUtils
-import UseCaseImpl
 
 @main
 @MainActor
@@ -18,8 +15,8 @@ struct WindowsConnectionOrderApp: App {
 
     init() {
         let adaptersUseCases = AppComposition.makeSystemAdaptersUseCases()
-        let localizationRepository = LocalizationRepositoryImpl()
-        let colorSchemeRepository = ColorSchemeRepositoryImpl()
+        let localizationUseCases = AppComposition.makeLocalizationUseCases()
+        let colorSchemeUseCases = AppComposition.makeColorSchemeUseCases()
         let initialLocalizables = Localizables(locale: .systemDefault)
         let provider = LocalizablesProvider(initial: initialLocalizables)
         _localizablesProvider = State(wrappedValue: provider)
@@ -28,15 +25,15 @@ struct WindowsConnectionOrderApp: App {
             refreshAdaptersUseCase: adaptersUseCases.refresh,
             reorderAdaptersUseCase: adaptersUseCases.reorder,
             updateAdapterMetricUseCase: adaptersUseCases.updateMetric,
-            streamLocalesUseCase: StreamLocalesUseCaseImpl(repository: localizationRepository),
-            streamColorSchemeUseCase: StreamColorSchemeUseCaseImpl(repository: colorSchemeRepository),
+            streamLocalesUseCase: localizationUseCases.stream,
+            streamColorSchemeUseCase: colorSchemeUseCases.stream,
             navigationPath: $navigationPath
         )
         settingsDependencies = SettingsDependencies(
-            streamLocalesUseCase: StreamLocalesUseCaseImpl(repository: localizationRepository),
-            setLocaleUseCase: SetLocaleUseCaseImpl(repository: localizationRepository),
-            streamColorSchemeUseCase: StreamColorSchemeUseCaseImpl(repository: colorSchemeRepository),
-            setColorSchemeUseCase: SetColorSchemeUseCaseImpl(repository: colorSchemeRepository),
+            streamLocalesUseCase: localizationUseCases.stream,
+            setLocaleUseCase: localizationUseCases.set,
+            streamColorSchemeUseCase: colorSchemeUseCases.stream,
+            setColorSchemeUseCase: colorSchemeUseCases.set,
             navigationPath: $navigationPath
         )
     }

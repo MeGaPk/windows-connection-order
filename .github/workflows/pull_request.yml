@@ -1,0 +1,42 @@
+name: pull-request-tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/**"
+      - "**/*.swift"
+      - "Package.swift"
+      - "Core/Package.swift"
+      - "Package.resolved"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      SWIFT_VERSION: "swift-6.3.3-release"
+      SWIFT_BUILD: "6.3.3-RELEASE"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Swift (Linux)
+        uses: compnerd/gha-setup-swift@main
+        with:
+          source: swift.org
+          swift-version: ${{ env.SWIFT_VERSION }}
+          swift-build: ${{ env.SWIFT_BUILD }}
+          cache: true
+
+      - name: Run tests
+        run: |
+          swift test --package-path Core

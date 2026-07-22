@@ -16,48 +16,22 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(
-            url: "https://github.com/moreSwift/swift-cross-ui",
-            exact: "0.8.0"
-        ),
+        .package(path: "Core"),
         .package(
             url: "https://github.com/apple/swift-argument-parser",
             exact: "1.8.2"
+        ),
+        .package(
+            url: "https://github.com/moreSwift/swift-cross-ui",
+            exact: "0.8.0"
         )
     ],
     targets: [
-        .target(name: "Domain"),
-        .target(name: "Utils"),
-        .target(name: "Gateway", dependencies: ["Domain"]),
-        .target(name: "GatewayImpl", dependencies: ["Domain", "Gateway"]),
-        .target(
-            name: "WindowsNetworkGatewayImpl",
-            dependencies: ["Domain", "Gateway"]
-        ),
-        .target(name: "Repository", dependencies: ["Domain"]),
-        .target(
-            name: "RepositoryImpl",
-            dependencies: ["Domain", "Gateway", "Repository", "Utils"]
-        ),
-        .target(name: "UseCase", dependencies: ["Domain"]),
-        .target(
-            name: "UseCaseImpl",
-            dependencies: ["Domain", "Repository", "UseCase"]
-        ),
-        .target(
-            name: "AppComposition",
-            dependencies: [
-                "Gateway",
-                "GatewayImpl",
-                "RepositoryImpl",
-                "UseCase",
-                "UseCaseImpl",
-                "WindowsNetworkGatewayImpl"
-            ]
-        ),
         .target(
             name: "Localization",
-            dependencies: ["Domain"],
+            dependencies: [
+                .product(name: "Domain", package: "Core")
+            ],
             resources: [.process("Resources")]
         ),
         .target(
@@ -69,31 +43,29 @@ let package = Package(
         .target(
             name: "Nodes",
             dependencies: [
-                "Domain",
                 "Localization",
                 "UIUtils",
-                "UseCase",
-                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
-            ]
-        ),
-        .executableTarget(
-            name: "EntryPoint",
-            dependencies: [
-                "AppComposition",
-                "Localization",
-                "Nodes",
-                "RepositoryImpl",
-                "UseCaseImpl",
-                .product(name: "DefaultBackend", package: "swift-cross-ui"),
+                .product(name: "Domain", package: "Core"),
+                .product(name: "UseCase", package: "Core"),
                 .product(name: "SwiftCrossUI", package: "swift-cross-ui")
             ]
         ),
         .executableTarget(
             name: "CommandLine",
             dependencies: [
-                "AppComposition",
-                "Domain",
+                .product(name: "AppComposition", package: "Core"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
+        .executableTarget(
+            name: "EntryPoint",
+            dependencies: [
+                "Localization",
+                "Nodes",
+                .product(name: "AppComposition", package: "Core"),
+                .product(name: "Domain", package: "Core"),
+                .product(name: "DefaultBackend", package: "swift-cross-ui"),
+                .product(name: "SwiftCrossUI", package: "swift-cross-ui")
             ]
         )
     ]

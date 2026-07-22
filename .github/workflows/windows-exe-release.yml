@@ -1,0 +1,78 @@
+name: windows-exe-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name for release (for example: v1.2.3)"
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    env:
+      SWIFT_VERSION: "swift-6.3.3-release"
+      SWIFT_BUILD: "6.3.3-RELEASE"
+      ARTIFACTS_DIR: "artifacts"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Swift (Windows)
+        uses: compnerd/gha-setup-swift@main
+        with:
+          source: swift.org
+          swift-version: ${{ env.SWIFT_VERSION }}
+          swift-build: ${{ env.SWIFT_BUILD }}
+          cache: true
+
+      - name: Restore/build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build/artifacts
+            .build/checkouts
+            .build/repositories
+            ${{ env.LOCALAPPDATA }}\swiftpm\cache
+            ${{ env.LOCALAPPDATA }}\swiftpm\repositories
+          key: ${{ runner.os }}-swift-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.swift', 'Package.resolved') }}-release
+          restore-keys: |
+            ${{ runner.os }}-swift-${{ env.SWIFT_VERSION }}-
+            ${{ runner.os }}-swift-
+
+      - name: Build GUI and CLI apps
+        shell: pwsh
+        run: |
+          pwsh .github/scripts/windows/build-windows-executables.ps1 `
+            -Workspace $env:GITHUB_WORKSPACE `
+            -ArtifactsDir $env:ARTIFACTS_DIR `
+            -Configuration release `
+            -Products "WindowsConnectionOrder,WindowsConnectionOrderCLI"
+
+      - name: Prepare release archive
+        id: prepare_release
+        shell: pwsh
+        run: |
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE "WindowsConnectionOrder-windows.zip"
+          pwsh .github/scripts/windows/create-windows-release-package.ps1 `
+            -Workspace $env:GITHUB_WORKSPACE `
+            -ArtifactsDir $env:ARTIFACTS_DIR `
+            -ZipPath $zipPath
+          Write-Output "archive_path=WindowsConnectionOrder-windows.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag_name }}
+          name: "WindowsConnectionOrder ${{ inputs.tag_name }}"
+          files: ${{ steps.prepare_release.outputs.archive_path }}
+          generate_release_notes: true
